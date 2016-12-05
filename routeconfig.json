@@ -1,0 +1,11 @@
+[{
+	"name": "Api mvc Route",
+	"template": "/{controller}/{action}",
+	"dir": "{dirname}/Controller",
+	"includeSubDir": true
+}, {
+	"name": "Api Route",
+	"template": "/{controller}/{id}",
+	"dir": "{dirname}/Controller",
+	"includeSubDir": true
+}]

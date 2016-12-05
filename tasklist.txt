@@ -1,0 +1,6 @@
+automatic bluetooth transfer
+fingerprint authentication
+
+microcontrollers hardware devices
+
+web platform

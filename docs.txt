@@ -1,0 +1,92 @@
+Response Success Status : 200
+Error Status : 400
+
+1. Register Api
+Register new user
+POST /auth/register
+Request Body:
+{
+	userName: userName,
+	password: password,
+	firstName: firstName,
+	lastName: lastName,
+	phoneNo: phoneNo,
+	email: email
+}
+
+2. UserName Check Api 
+GET /auth/check?userName=userName
+check the username if already present in system
+Response : true / false
+
+3. Login Api
+POST /auth/login
+Request Body:
+{
+	userName: userName, 
+	password: password,
+	deviceId: deviceId // optional
+}
+
+Response Body:
+{
+	userName: userName,
+	token: accessToken,
+	deviceId: deviceId,
+	deviceSecret: deviceSecret
+}
+
+4. Logout Api
+GET /auth/logout
+
+5. Pay Api
+Paying api 
+POST /pay
+Request Body:
+{
+	senderUserName: senderUserName,
+	senderDeviceId: senderDeviceId,
+	receiverUserName: receiverUserName,
+	amount: amount,
+	token: token,
+	title: title,							// optional
+	description: description	// optional
+}
+
+6. User Get Api
+retrieve information for the current logged in user.
+GET /user
+
+Response Body:
+{
+	id: id,
+	userName: userName,
+	firstName: firstName,
+	lastName: lastName,
+	email: email,
+	phoneNo: phoneNo
+}
+
+7. User Update Api
+update profile information
+POST /user
+
+Request Body:
+{
+	id: id,
+	userName: userName,
+	firstName: firstName,
+	lastName: lastName,
+	email: email,
+	phoneNo: phoneNo
+}
+
+Response Body:
+{
+	id: id,
+	userName: userName,
+	firstName: firstName,
+	lastName: lastName,
+	email: email,
+	phoneNo: phoneNo
+}

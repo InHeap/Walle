@@ -1,0 +1,21 @@
+{
+  "name": "Walle",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/InHeap/Walle.git",
+  "author": "Nitin Bansal <nitinbansal1989@yahoo.co.in>",
+  "license": "GPL",
+  "dependencies": {
+    "body-parser": "*",
+    "cors": "*",
+    "es-controller": "*",
+    "es-entity": "*",
+    "express": "*",
+    "helmet": "*",
+    "morgan": "*",
+    "mysql": "*",
+    "passport": "*",
+    "passport-http-bearer": "*",
+    "randomstring": "*"
+  }
+}
