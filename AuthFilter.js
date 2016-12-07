@@ -7,21 +7,31 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const passport = require('passport');
-const passportHttpBearer = require("passport-http-bearer");
 const UserService_1 = require('./Service/UserService');
-function findUser(token) {
+function AuthFilter(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
-        let userService = new UserService_1.default();
-        let user = yield userService.single({ accessToken: token });
-        return user;
+        try {
+            let userName = req.headers['username'];
+            if (!userName)
+                throw 'UserName is required';
+            let userService = new UserService_1.default();
+            let user = yield userService.getByUserName(userName);
+            if (!user)
+                throw 'User not found';
+            let authorization = req.headers['authorization'];
+            if (!authorization)
+                throw 'Authorization Header is required';
+            if (authorization.startsWith('Bearer '))
+                throw 'Authorization token invalid';
+            let token = authorization.split(' ')[1];
+            if (!token || user.accessToken.get() !== token)
+                throw 'Authorization token invalid';
+            next();
+        }
+        catch (error) {
+            next(error);
+        }
     });
 }
-passport.use(new passportHttpBearer.Strategy(function (token, done) {
-    return __awaiter(this, void 0, void 0, function* () {
-        let user = yield findUser(token);
-        done(null, user);
-    });
-}));
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = passport.authenticate('bearer', { session: false });
+exports.default = AuthFilter;

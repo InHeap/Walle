@@ -1,4 +1,4 @@
-import entity from "es-entity";
+import * as entity from "es-entity";
 import { context } from "../index";
 import DbContext from "../Model/DbContext";
 import Transaction from '../Model/Transaction';

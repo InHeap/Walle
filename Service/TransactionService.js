@@ -7,10 +7,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const es_entity_1 = require("es-entity");
+const entity = require("es-entity");
 const index_1 = require("../index");
 const Transaction_1 = require('../Model/Transaction');
-var transactionPropertyTrans = new es_entity_1.default.Util.PropertyTransformer();
+var transactionPropertyTrans = new entity.Util.PropertyTransformer();
 transactionPropertyTrans.fields.push('email', 'firstName', 'lastName');
 class DeviceService {
     constructor() {

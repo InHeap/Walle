@@ -13,6 +13,7 @@ import * as helmet from 'helmet';
 import * as cors from 'cors';
 
 import DbContext from "./Model/DbContext";
+import AuthFilter from './AuthFilter';
 
 var config = JSON.parse(fs.readFileSync(process.env["HEAP_HOME"] + '/config/walle/config.json', 'utf8'));
 
@@ -25,6 +26,10 @@ app.use(cors({ origin: "*" }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 // app.use(helmet());
+
+app.use('/user', AuthFilter);
+app.use('/pay', AuthFilter);
+app.use('/device', AuthFilter);
 
 var router = new controller.Router();
 router.load(__dirname + "/routeconfig.json", __dirname);
@@ -39,8 +44,6 @@ context.init();
 router.set("Context", context);
 
 router.setApp(app);
-
-// app.use(passport.authenticate('bearer', { session: false }));
 
 // Error Handler
 app.use([function (err, req, res, next) {

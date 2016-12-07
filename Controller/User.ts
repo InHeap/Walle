@@ -5,19 +5,18 @@ import AuthFilter from '../AuthFilter';
 
 export default class User extends es.Controller {
 	userId: number = 0;
-	userService: UserService = null;
-
+	userService: UserService = new UserService();
+	
 	$init() {
-		this.userService = new UserService();
 		let request = this.$get('request');
 		if (request.user) {
-			this.userId = request.user.id;
+			this.userId = request.user.id.get();
 		}
-		this.filters.push(AuthFilter);
 	}
 
 	async get(params: any) {
-		return await this.userService.get(this.userId);
+		let user = await this.userService.get(this.userId);
+		return user;
 	}
 
 	async post(params, entity) {

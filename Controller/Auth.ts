@@ -26,6 +26,7 @@ export default class Auth extends es.Controller {
 			throw 'Duplicate User';
 
 		let user = await this.userService.save(model);
+		return true;
 	}
 
 	async check(params) {
@@ -40,7 +41,7 @@ export default class Auth extends es.Controller {
 		if (!model.password)
 			throw 'Blank Password';
 
-		let user = await this.userService.getByUserName(params.userName);
+		let user = await this.userService.getByUserName(model.userName);
 
 		if (!user)
 			throw 'User not found';

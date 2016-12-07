@@ -7,10 +7,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const es_entity_1 = require("es-entity");
+const entity = require("es-entity");
 const index_1 = require("../index");
 const User_1 = require('../Model/User');
-var userPropertyTrans = new es_entity_1.default.Util.PropertyTransformer();
+var userPropertyTrans = new entity.Util.PropertyTransformer();
 userPropertyTrans.fields.push('email', 'firstName', 'lastName', 'phoneNo');
 class UserService {
     constructor() {

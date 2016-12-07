@@ -29,6 +29,7 @@ class Auth extends es.Controller {
             if (!(yield this.check({ userName: model.userName })))
                 throw 'Duplicate User';
             let user = yield this.userService.save(model);
+            return true;
         });
     }
     check(params) {
@@ -43,7 +44,7 @@ class Auth extends es.Controller {
                 throw 'Blank UserName';
             if (!model.password)
                 throw 'Blank Password';
-            let user = yield this.userService.getByUserName(params.userName);
+            let user = yield this.userService.getByUserName(model.userName);
             if (!user)
                 throw 'User not found';
             if (user.password.get() !== model.password)

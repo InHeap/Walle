@@ -12,7 +12,6 @@ const es = require('es-controller');
 const UserService_1 = require("../Service/UserService");
 const DeviceService_1 = require('../Service/DeviceService');
 const TransactionService_1 = require('../Service/TransactionService');
-const AuthFilter_1 = require('../AuthFilter');
 class Pay extends es.Controller {
     constructor() {
         super(...arguments);
@@ -22,7 +21,6 @@ class Pay extends es.Controller {
         this.transactionService = new TransactionService_1.default();
     }
     $init() {
-        this.filters.push(AuthFilter_1.default);
         let request = this.$get('request');
         if (request.user) {
             this.user = request.user;

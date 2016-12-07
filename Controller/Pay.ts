@@ -16,7 +16,6 @@ export default class Pay extends es.Controller {
 	transactionService: TransactionService = new TransactionService();
 
 	$init() {
-		this.filters.push(AuthFilter);
 		let request = this.$get('request');
 		if (request.user) {
 			this.user = request.user;

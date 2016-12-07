@@ -9,24 +9,22 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const es = require('es-controller');
 const UserService_1 = require("../Service/UserService");
-const AuthFilter_1 = require('../AuthFilter');
 class User extends es.Controller {
     constructor() {
         super(...arguments);
         this.userId = 0;
-        this.userService = null;
+        this.userService = new UserService_1.default();
     }
     $init() {
-        this.userService = new UserService_1.default();
         let request = this.$get('request');
         if (request.user) {
-            this.userId = request.user.id;
+            this.userId = request.user.id.get();
         }
-        this.filters.push(AuthFilter_1.default);
     }
     get(params) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield this.userService.get(this.userId);
+            let user = yield this.userService.get(this.userId);
+            return user;
         });
     }
     post(params, entity) {

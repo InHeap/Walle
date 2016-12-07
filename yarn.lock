@@ -132,15 +132,15 @@ encodeurl@~1.0.1:
   resolved "https://registry.yarnpkg.com/encodeurl/-/encodeurl-1.0.1.tgz#79e3d58655346909fe6f0f45a5de68103b294d20"
 
 es-controller@*:
-  version "1.0.25"
-  resolved "https://registry.yarnpkg.com/es-controller/-/es-controller-1.0.25.tgz#0408da19c9751bc5875bb804e4f8f1767da6b43f"
+  version "1.0.31"
+  resolved "https://registry.yarnpkg.com/es-controller/-/es-controller-1.0.31.tgz#20eba6e4ce005a0e17ce025fbe9a3c37320aaeb9"
   dependencies:
     express "*"
     xregexp "*"
 
 es-entity@*:
-  version "1.0.33"
-  resolved "https://registry.yarnpkg.com/es-entity/-/es-entity-1.0.33.tgz#fee6b2e89dbff45009983c3227df394a7d3ae7c9"
+  version "1.0.34"
+  resolved "https://registry.yarnpkg.com/es-entity/-/es-entity-1.0.34.tgz#ecb7c755b36a776794b488ba71c8945dd9710e40"
   dependencies:
     case "*"
 

@@ -8,6 +8,7 @@ const morgan = require('morgan');
 const mysql = require("mysql");
 const cors = require('cors');
 const DbContext_1 = require("./Model/DbContext");
+const AuthFilter_1 = require('./AuthFilter');
 var config = JSON.parse(fs.readFileSync(process.env["HEAP_HOME"] + '/config/walle/config.json', 'utf8'));
 var app = express();
 exports.app = app;
@@ -15,6 +16,9 @@ app.use(morgan(':date[iso] :remote-addr :remote-user :method :url HTTP/:http-ver
 app.use(cors({ origin: "*" }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use('/user', AuthFilter_1.default);
+app.use('/pay', AuthFilter_1.default);
+app.use('/device', AuthFilter_1.default);
 var router = new controller.Router();
 router.load(__dirname + "/routeconfig.json", __dirname);
 router.set('app', app);

@@ -14,8 +14,6 @@
     "helmet": "*",
     "morgan": "*",
     "mysql": "*",
-    "passport": "*",
-    "passport-http-bearer": "*",
     "randomstring": "*"
   }
 }

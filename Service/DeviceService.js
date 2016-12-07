@@ -7,10 +7,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const es_entity_1 = require("es-entity");
+const entity = require("es-entity");
 const index_1 = require("../index");
 const Device_1 = require('../Model/Device');
-var devicePropertyTrans = new es_entity_1.default.Util.PropertyTransformer();
+var devicePropertyTrans = new entity.Util.PropertyTransformer();
 devicePropertyTrans.fields.push('name', 'description', 'payable');
 class DeviceService {
     constructor() {

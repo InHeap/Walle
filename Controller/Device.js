@@ -9,7 +9,6 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const es = require('es-controller');
 const DeviceService_1 = require("../Service/DeviceService");
-const AuthFilter_1 = require('../AuthFilter');
 class Device extends es.Controller {
     constructor() {
         super(...arguments);
@@ -21,7 +20,6 @@ class Device extends es.Controller {
         if (request.user) {
             this.user = request.user;
         }
-        this.filters.push(AuthFilter_1.default);
     }
     get(params) {
         return __awaiter(this, void 0, void 0, function* () {

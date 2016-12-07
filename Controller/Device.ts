@@ -14,7 +14,6 @@ export default class Device extends es.Controller {
 		if (request.user) {
 			this.user = request.user;
 		}
-		this.filters.push(AuthFilter);
 	}
 
 	async get(params: any): Promise<any> {
