@@ -1,8 +1,8 @@
 "use strict";
 const es = require("es-entity");
 const User_1 = require("./User");
-const Device_1 = require('./Device');
-const Transaction_1 = require('./Transaction');
+const Device_1 = require("./Device");
+const Transaction_1 = require("./Transaction");
 class DbContext extends es.Context {
     constructor(config, entityPath) {
         super(config, entityPath);

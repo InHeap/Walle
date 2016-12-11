@@ -1,14 +1,14 @@
 #! /usr/bin/env node
 "use strict";
-const fs = require('fs');
-const express = require('express');
-const bodyParser = require('body-parser');
-const controller = require('es-controller');
-const morgan = require('morgan');
+const fs = require("fs");
+const express = require("express");
+const bodyParser = require("body-parser");
+const controller = require("es-controller");
+const morgan = require("morgan");
 const mysql = require("mysql");
-const cors = require('cors');
+const cors = require("cors");
 const DbContext_1 = require("./Model/DbContext");
-const AuthFilter_1 = require('./AuthFilter');
+const AuthFilter_1 = require("./AuthFilter");
 var config = JSON.parse(fs.readFileSync(process.env["HEAP_HOME"] + '/config/walle/config.json', 'utf8'));
 var app = express();
 exports.app = app;
@@ -31,7 +31,7 @@ router.set("Context", context);
 router.setApp(app);
 app.use([function (err, req, res, next) {
         console.error(err);
-        res.status(400);
+        res.status(err.status ? err.status : 400);
         if (err.message)
             res.send(err.message);
         else if (err)

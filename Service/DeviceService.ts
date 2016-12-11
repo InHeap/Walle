@@ -5,7 +5,13 @@ import User from '../Model/User';
 import Device from '../Model/Device';
 
 var devicePropertyTrans = new entity.Util.PropertyTransformer();
-devicePropertyTrans.fields.push('name', 'description', 'payable');
+devicePropertyTrans.fields.push('name', 'description', 'payable', 'platform');
+
+enum DevicePlatform {
+	WEB,
+	ANDROID,
+	IOS
+}
 
 export default class DeviceService {
 
@@ -35,6 +41,9 @@ export default class DeviceService {
 			device = this.copyProperties(device, model);
 			device.userId.set(model.userId);
 		}
+		if (model.platform) {
+			device.platform.set(DevicePlatform[<string>model.platform]);
+		}
 		device = await context.devices.insertOrUpdate(device);
 		return device;
 	}
@@ -61,7 +70,16 @@ export default class DeviceService {
 			let e = context.devices.getEntity();
 			let c = context.getCriteria();
 			if (params.userId) {
-				c = c.add(e.userId.eq(params.userId));
+				c = c.add((<Device>e).userId.eq(params.userId));
+			}
+			if (params.platform) {
+				c = c.add((<Device>e).platform.eq(DevicePlatform[params.platform]));
+			}
+			if (params.payable) {
+				c = c.add((<Device>e).payable.eq(params.payable));
+			}
+			if (params.active) {
+				c = c.add((<Device>e).active.eq(params.active));
 			}
 			return c;
 		} else {

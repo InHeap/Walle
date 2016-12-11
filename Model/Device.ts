@@ -11,6 +11,7 @@ export default class Device {
 	name: Type.String = new Type.String();
 	description: Type.String = new Type.String();
 	secret: Type.String = new Type.String();
+	platform: Type.Number = new Type.Number();
 	expireAt: Type.Date = new Type.Date();
 	payable: Type.Boolean = new Type.Boolean();
 	active: Type.Boolean = new Type.Boolean();

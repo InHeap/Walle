@@ -2,14 +2,14 @@
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
 const entity = require("es-entity");
 const index_1 = require("../index");
-const Transaction_1 = require('../Model/Transaction');
+const Transaction_1 = require("../Model/Transaction");
 var transactionPropertyTrans = new entity.Util.PropertyTransformer();
 transactionPropertyTrans.fields.push('email', 'firstName', 'lastName');
 class DeviceService {

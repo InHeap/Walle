@@ -2,15 +2,15 @@
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator.throw(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
         function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const random = require('randomstring');
-const es = require('es-controller');
+const random = require("randomstring");
+const es = require("es-controller");
 const UserService_1 = require("../Service/UserService");
-const DeviceService_1 = require('../Service/DeviceService');
+const DeviceService_1 = require("../Service/DeviceService");
 class Auth extends es.Controller {
     constructor() {
         super(...arguments);
@@ -55,10 +55,20 @@ class Auth extends es.Controller {
             let device = null;
             if (model.deviceId) {
                 device = yield this.deviceService.get(model.deviceId);
+                if (device.active.get() !== true)
+                    throw 'Device Inactive';
             }
-            else {
+            else if (model.platform == 'WEB') {
+                device = yield this.deviceService.single({
+                    userId: user.id.get(),
+                    platform: model.platform,
+                    active: true
+                });
+            }
+            if (!device) {
                 device = yield this.deviceService.save({
                     userId: user.id.get(),
+                    platform: model.platform,
                     payable: true
                 });
             }

@@ -8,39 +8,41 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 const es = require("es-controller");
+const rq = require("request-promise-native");
 const UserService_1 = require("../Service/UserService");
-class User extends es.Controller {
+class Topup extends es.Controller {
     constructor() {
         super(...arguments);
-        this.userId = 0;
+        this.user = null;
         this.userService = new UserService_1.default();
     }
     $init() {
         let request = this.$get('request');
         if (request.user) {
-            this.userId = request.user.id.get();
+            this.user = request.user;
         }
     }
-    get(params) {
+    post(params, body) {
         return __awaiter(this, void 0, void 0, function* () {
-            let user = yield this.userService.get(this.userId);
-            return {
-                userName: user.userName.get(),
-                firstName: user.firstName.get(),
-                lastName: user.lastName.get(),
-                email: user.email.get(),
-                phoneNo: user.phoneNo.get(),
-                balance: user.balance.get()
-            };
-        });
-    }
-    post(params, entity) {
-        return __awaiter(this, void 0, void 0, function* () {
-            entity.id = this.userId;
-            yield this.userService.save(entity);
-            return yield this.get(params);
+            let id = params.id;
+            let amount = body.amount;
+            let key = 'rzp_test_BJD78hX868UODl';
+            let secret = 'LvNUnyzFO9tuDqadpQrdYr2o';
+            try {
+                let q = yield rq({
+                    method: 'POST',
+                    url: 'https://' + key + ':' + secret + '@api.razorpay.com/v1/payments/' + id + '/capture',
+                    form: {
+                        amount: amount
+                    }
+                });
+                console.log(q);
+            }
+            catch (error) {
+                console.log(error);
+            }
         });
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = User;
+exports.default = Topup;

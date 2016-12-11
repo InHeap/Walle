@@ -1,5 +1,5 @@
 {
-  "name": "Walle",
+  "name": "walle",
   "version": "1.0.0",
   "main": "index.js",
   "repository": "https://github.com/InHeap/Walle.git",
@@ -14,6 +14,8 @@
     "helmet": "*",
     "morgan": "*",
     "mysql": "*",
-    "randomstring": "*"
+    "randomstring": "*",
+    "razorpay": "*",
+    "request-promise-native": "*"
   }
 }

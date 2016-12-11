@@ -58,12 +58,23 @@ export default class Auth extends es.Controller {
 		let device: Device = null;
 		if (model.deviceId) {
 			device = await this.deviceService.get(model.deviceId);
-		} else {
+			if (device.active.get() !== true)
+				throw 'Device Inactive';
+		} else if (model.platform == 'WEB') {
+			device = await this.deviceService.single({
+				userId: user.id.get(),
+				platform: model.platform,
+				active: true
+			});
+		}
+		if (!device) {
 			device = await this.deviceService.save({
 				userId: user.id.get(),
+				platform: model.platform,
 				payable: true
 			});
 		}
+
 		// Reset device expire time
 		device.secret.set(random.generate());
 		device.expireAt.set(new Date(new Date().getTime() + (7 * 24 * 3600 * 1000)));

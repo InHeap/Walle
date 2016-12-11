@@ -8,6 +8,7 @@ class Device {
         this.name = new es_entity_1.Type.String();
         this.description = new es_entity_1.Type.String();
         this.secret = new es_entity_1.Type.String();
+        this.platform = new es_entity_1.Type.Number();
         this.expireAt = new es_entity_1.Type.Date();
         this.payable = new es_entity_1.Type.Boolean();
         this.active = new es_entity_1.Type.Boolean();

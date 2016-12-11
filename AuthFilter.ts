@@ -1,33 +1,9 @@
 import * as express from 'express';
-// import * as passport from 'passport';
-// import * as passportHttpBearer from "passport-http-bearer";
 
 import UserService from './Service/UserService';
+import DeviceService from './Service/DeviceService';
 
-// async function findUser(token: string) {
-// 	let userService: UserService = new UserService();
-// 	let user = await userService.single({ accessToken: token });
-// 	if (user && user.expireAt.get().getTime() > (new Date()).getTime()) {
-// 		return user;
-// 	} else {
-// 		return null;
-// 	}
-// }
-
-// passport.use(new passportHttpBearer.Strategy(
-// 	async function (token, done) {
-// 		let user = await findUser(token);
-// 		if (user) {
-// 			done(null, user);
-// 		} else {
-// 			done('User UnAuthorized');
-// 		}
-// 	}
-// ));
-
-// export default passport.authenticate('bearer', { session: false });
-
-export default async function AuthFilter(req: express.Request, res: express.Response, next: express.NextFunction) {
+export default async function AuthFilter(req: express.Request & { device }, res: express.Response, next: express.NextFunction) {
 	try {
 		let userName = req.headers['username'];
 		if (!userName)
@@ -42,15 +18,27 @@ export default async function AuthFilter(req: express.Request, res: express.Resp
 		if (!authorization)
 			throw 'Authorization Header is required';
 
-		if (authorization.startsWith('Bearer '))
+		if (!authorization.startsWith('Bearer '))
 			throw 'Authorization token invalid';
 
 		let token = authorization.split(' ')[1];
 		if (!token || user.accessToken.get() !== token)
 			throw 'Authorization token invalid';
 
+		let deviceId = Number.parseInt(req.headers['deviceId']);
+		if (!deviceId)
+			throw 'Device Id is required';
+
+		let deviceService = new DeviceService();
+		let device = await deviceService.get(deviceId);
+		if (device.userId.get() !== user.id.get())
+			throw 'UnAuthorized Device Access';
+
+		req.user = user;
+		req.device = device;
 		next();
 	} catch (error) {
+		res.status(401);
 		next(error);
 	}
 }

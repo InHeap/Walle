@@ -48,7 +48,7 @@ router.setApp(app);
 // Error Handler
 app.use([function (err, req, res, next) {
 	console.error(err);
-	res.status(400);
+	res.status(err.status ? err.status : 400);
 	if (err.message) res.send(err.message);
 	else if (err) res.send(err);
 	else res.send("Something Broke!");

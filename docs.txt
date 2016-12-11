@@ -25,7 +25,8 @@ Request Body:
 {
 	userName: userName, 
 	password: password,
-	deviceId: deviceId // optional
+	deviceId: deviceId					// optional
+	platform: device platform		// optional
 }
 
 Response Body:
@@ -51,6 +52,15 @@ Request Body:
 	token: token,
 	title: title,							// optional
 	description: description	// optional
+}
+
+Response Body:
+{
+	id: transactionId,
+	senderUserName: senderUserName,
+	receiverUserName: receiverUserName,
+	amount: amount,
+	createdAt: createdAt
 }
 
 6. User Get Api
@@ -90,3 +100,8 @@ Response Body:
 	email: email,
 	phoneNo: phoneNo
 }
+
+Device Platforms
+1. WEB
+2. ANDROID
+3. IOS
