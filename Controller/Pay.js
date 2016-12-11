@@ -28,18 +28,52 @@ class Pay extends es.Controller {
     }
     get(params) {
         return __awaiter(this, void 0, void 0, function* () {
-            let t = yield this.transactionService.get(params.id);
-            if (this.user.id.get() !== t.senderId.get() || this.user.id.get() !== t.receiverId.get())
-                throw 'UnAuthorized Access';
-            let sender = yield this.userService.get(t.senderId.get());
-            let receiver = yield this.userService.get(t.receiverId.get());
-            return {
-                id: t.id.get(),
-                senderUserName: sender.userName.get(),
-                receiverUserName: receiver.userName.get(),
-                amount: t.amount.get(),
-                createdAt: t.crtdAt.get()
-            };
+            try {
+                if (params.id) {
+                    let t = yield this.transactionService.get(params.id);
+                    if (this.user.id.get() !== t.senderId.get() || this.user.id.get() !== t.receiverId.get())
+                        throw 'UnAuthorized Access';
+                    let sender = yield this.userService.get(t.senderId.get());
+                    let receiver = yield this.userService.get(t.receiverId.get());
+                    return {
+                        id: t.id.get(),
+                        senderUserName: sender.userName.get(),
+                        receiverUserName: receiver.userName.get(),
+                        amount: t.amount.get(),
+                        createdAt: t.crtdAt.get()
+                    };
+                }
+                else {
+                    let index = Number.parseInt(params.index);
+                    let limit = Number.parseInt(params.limit);
+                    let fromDate = Number.parseInt(params.fromDate);
+                    let toDate = Number.parseInt(params.toDate);
+                    let transactions = yield this.transactionService.getUserTransactions({
+                        userId: this.user.id.get(),
+                        index: index,
+                        limit: limit,
+                        fromDate: fromDate,
+                        toDate: toDate
+                    });
+                    let res = [];
+                    transactions.forEach((t) => __awaiter(this, void 0, void 0, function* () {
+                        let sender = yield this.userService.get(t.senderId.get());
+                        let receiver = yield this.userService.get(t.receiverId.get());
+                        res.push({
+                            id: t.id.get(),
+                            senderUserName: sender.userName.get(),
+                            receiverUserName: receiver.userName.get(),
+                            amount: t.amount.get(),
+                            createdAt: t.crtdAt.get()
+                        });
+                    }));
+                    return res;
+                }
+            }
+            catch (error) {
+                console.log(error);
+                throw 'Invalid Parameter';
+            }
         });
     }
     post(params, body) {

@@ -44,7 +44,7 @@ export default class DeviceService {
 		await context.transactions.delete(transaction);
 	}
 
-	async list(params): Promise<Array<Transaction>> {
+	async list(params): Promise<Transaction[]> {
 		let criteria = this.getExpression(params);
 		return await context.transactions.where(criteria).list();
 	}
@@ -62,6 +62,25 @@ export default class DeviceService {
 		} else {
 			throw 'No Parameter Found';
 		}
+	}
+
+	async getUserTransactions(params): Promise<Transaction[]> {
+		let e = context.transactions.getEntity();
+		let c = context.getCriteria();
+		if (params.userId) {
+			c.add(e.senderId.eq(params.userId).or(e.receiverId.eq(params.userId)));
+		}
+		if (params.fromDate) {
+			c.add(e.crtdAt.gt(params.fromDate));
+		}
+		if (params.toDate) {
+			c.add(e.crtdAt.lteq(params.toDate));
+		}
+		let q = context.transactions.where(c);
+		if (params.index || params.limit) {
+			q = q.limit(params.limit, params.index)
+		}
+		return await q.list();
 	}
 
 }

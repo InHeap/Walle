@@ -58,7 +58,7 @@ class Auth extends es.Controller {
                 if (device.active.get() !== true)
                     throw 'Device Inactive';
             }
-            else if (model.platform == 'WEB') {
+            else if (DeviceService_1.DevicePlatform[model.platform] == DeviceService_1.DevicePlatform.WEB) {
                 device = yield this.deviceService.single({
                     userId: user.id.get(),
                     platform: model.platform,
@@ -73,7 +73,12 @@ class Auth extends es.Controller {
                 });
             }
             device.secret.set(random.generate());
-            device.expireAt.set(new Date(new Date().getTime() + (7 * 24 * 3600 * 1000)));
+            if (DeviceService_1.DevicePlatform[model.platform] == DeviceService_1.DevicePlatform.WEB) {
+                device.expireAt.set(new Date(new Date().getTime() + (3600 * 1000)));
+            }
+            else {
+                device.expireAt.set(new Date(new Date().getTime() + (7 * 24 * 3600 * 1000)));
+            }
             this.deviceService.save(device);
             return {
                 userName: user.userName.get(),

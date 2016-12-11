@@ -13,8 +13,6 @@ const User_1 = require("../Model/User");
 var userPropertyTrans = new entity.Util.PropertyTransformer();
 userPropertyTrans.fields.push('email', 'firstName', 'lastName', 'phoneNo');
 class UserService {
-    constructor() {
-    }
     copyProperties(user, entity) {
         user = userPropertyTrans.assignEntity(user, entity);
         return user;

@@ -5,7 +5,7 @@ import * as entity from "es-entity";
 import UserService from "../Service/UserService";
 import User from '../Model/User';
 import Device from '../Model/Device';
-import DeviceService from '../Service/DeviceService';
+import DeviceService, { DevicePlatform } from '../Service/DeviceService';
 
 export default class Auth extends es.Controller {
 	userService: UserService = new UserService();
@@ -60,7 +60,7 @@ export default class Auth extends es.Controller {
 			device = await this.deviceService.get(model.deviceId);
 			if (device.active.get() !== true)
 				throw 'Device Inactive';
-		} else if (model.platform == 'WEB') {
+		} else if (DevicePlatform[<string>model.platform] == DevicePlatform.WEB) {
 			device = await this.deviceService.single({
 				userId: user.id.get(),
 				platform: model.platform,
@@ -77,7 +77,12 @@ export default class Auth extends es.Controller {
 
 		// Reset device expire time
 		device.secret.set(random.generate());
-		device.expireAt.set(new Date(new Date().getTime() + (7 * 24 * 3600 * 1000)));
+		if (DevicePlatform[<string>model.platform] == DevicePlatform.WEB) {
+			device.expireAt.set(new Date(new Date().getTime() + (3600 * 1000)));
+		} else {
+			device.expireAt.set(new Date(new Date().getTime() + (7 * 24 * 3600 * 1000)));
+		}
+
 		this.deviceService.save(device);
 
 		return {

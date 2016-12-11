@@ -29,6 +29,11 @@ Request Body:
 	platform: device platform		// optional
 }
 
+Device Platforms
+1. WEB
+2. ANDROID
+3. IOS
+
 Response Body:
 {
 	userName: userName,
@@ -40,30 +45,7 @@ Response Body:
 4. Logout Api
 GET /auth/logout
 
-5. Pay Api
-Paying api 
-POST /pay
-Request Body:
-{
-	senderUserName: senderUserName,
-	senderDeviceId: senderDeviceId,
-	receiverUserName: receiverUserName,
-	amount: amount,
-	token: token,
-	title: title,							// optional
-	description: description	// optional
-}
-
-Response Body:
-{
-	id: transactionId,
-	senderUserName: senderUserName,
-	receiverUserName: receiverUserName,
-	amount: amount,
-	createdAt: createdAt
-}
-
-6. User Get Api
+5. User Get Api
 retrieve information for the current logged in user.
 GET /user
 
@@ -77,7 +59,7 @@ Response Body:
 	phoneNo: phoneNo
 }
 
-7. User Update Api
+6. User Update Api
 update profile information
 POST /user
 
@@ -101,7 +83,49 @@ Response Body:
 	phoneNo: phoneNo
 }
 
-Device Platforms
-1. WEB
-2. ANDROID
-3. IOS
+Transaction Apis
+
+1. Get Transactions By Id Api
+GET /pay/{id}
+
+2. Get Transactions List Api
+GET /pay
+Query Parameters:
+1. index : number = Offset index of the list
+2. limit : number = limit of the list
+3. fromDate : number = from timestamp
+4. toDate : number = to timestamp
+
+Response Body: Array for transaction objects
+
+3. Paying api for the Receiver
+POST /pay
+Request Body:
+{
+	senderUserName: senderUserName,
+	senderDeviceId: senderDeviceId,
+	amount: amount,
+	token: token,
+	title: title,							// optional
+	description: description	// optional
+}
+
+4. Paying api for the Sender
+POST /pay
+Request Body:
+{
+	receiverUserName: receiverUserName,
+	amount: amount,
+	token: token,
+	title: title,							// optional
+	description: description	// optional
+}
+
+Transaction Object Response Body:
+{
+	id: transactionId,
+	senderUserName: senderUserName,
+	receiverUserName: receiverUserName,
+	amount: amount,
+	createdAt: createdAt
+}

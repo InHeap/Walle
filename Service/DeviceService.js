@@ -17,7 +17,7 @@ var DevicePlatform;
     DevicePlatform[DevicePlatform["WEB"] = 0] = "WEB";
     DevicePlatform[DevicePlatform["ANDROID"] = 1] = "ANDROID";
     DevicePlatform[DevicePlatform["IOS"] = 2] = "IOS";
-})(DevicePlatform || (DevicePlatform = {}));
+})(DevicePlatform = exports.DevicePlatform || (exports.DevicePlatform = {}));
 class DeviceService {
     constructor() {
     }

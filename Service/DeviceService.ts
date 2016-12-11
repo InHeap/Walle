@@ -7,7 +7,7 @@ import Device from '../Model/Device';
 var devicePropertyTrans = new entity.Util.PropertyTransformer();
 devicePropertyTrans.fields.push('name', 'description', 'payable', 'platform');
 
-enum DevicePlatform {
+export enum DevicePlatform {
 	WEB,
 	ANDROID,
 	IOS
@@ -70,16 +70,16 @@ export default class DeviceService {
 			let e = context.devices.getEntity();
 			let c = context.getCriteria();
 			if (params.userId) {
-				c = c.add((<Device>e).userId.eq(params.userId));
+				c = c.add(e.userId.eq(params.userId));
 			}
 			if (params.platform) {
-				c = c.add((<Device>e).platform.eq(DevicePlatform[params.platform]));
+				c = c.add(e.platform.eq(DevicePlatform[params.platform]));
 			}
 			if (params.payable) {
-				c = c.add((<Device>e).payable.eq(params.payable));
+				c = c.add(e.payable.eq(params.payable));
 			}
 			if (params.active) {
-				c = c.add((<Device>e).active.eq(params.active));
+				c = c.add(e.active.eq(params.active));
 			}
 			return c;
 		} else {

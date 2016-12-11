@@ -8,9 +8,6 @@ userPropertyTrans.fields.push('email', 'firstName', 'lastName', 'phoneNo');
 
 export default class UserService {
 
-	constructor() {
-	}
-
 	copyProperties(user: User, entity: any): User {
 		user = userPropertyTrans.assignEntity(user, entity);
 		return user;

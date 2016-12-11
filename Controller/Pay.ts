@@ -24,19 +24,55 @@ export default class Pay extends es.Controller {
 	}
 
 	async get(params) {
-		let t = await this.transactionService.get(params.id);
-		if (this.user.id.get() !== t.senderId.get() || this.user.id.get() !== t.receiverId.get())
-			throw 'UnAuthorized Access';
+		try {
+			if (params.id) {
+				let t = await this.transactionService.get(params.id);
+				if (this.user.id.get() !== t.senderId.get() || this.user.id.get() !== t.receiverId.get())
+					throw 'UnAuthorized Access';
 
-		let sender = await this.userService.get(t.senderId.get());
-		let receiver = await this.userService.get(t.receiverId.get());
+				let sender = await this.userService.get(t.senderId.get());
+				let receiver = await this.userService.get(t.receiverId.get());
 
-		return {
-			id: t.id.get(),
-			senderUserName: sender.userName.get(),
-			receiverUserName: receiver.userName.get(),
-			amount: t.amount.get(),
-			createdAt: t.crtdAt.get()
+				return {
+					id: t.id.get(),
+					senderUserName: sender.userName.get(),
+					receiverUserName: receiver.userName.get(),
+					amount: t.amount.get(),
+					createdAt: t.crtdAt.get()
+				}
+			} else {
+				let index = Number.parseInt(params.index);
+				let limit = Number.parseInt(params.limit);
+				let fromDate = Number.parseInt(params.fromDate);
+				let toDate = Number.parseInt(params.toDate);
+
+				let transactions = await this.transactionService.getUserTransactions({
+					userId: this.user.id.get(),
+					index: index,
+					limit: limit,
+					fromDate: fromDate,
+					toDate: toDate
+				});
+
+				let res = [];
+				transactions.forEach(async t => {
+					let sender = await this.userService.get(t.senderId.get());
+					let receiver = await this.userService.get(t.receiverId.get());
+
+					res.push({
+						id: t.id.get(),
+						senderUserName: sender.userName.get(),
+						receiverUserName: receiver.userName.get(),
+						amount: t.amount.get(),
+						createdAt: t.crtdAt.get()
+					})
+				});
+
+				return res;
+			}
+		} catch (error) {
+			console.log(error);
+			throw 'Invalid Parameter';
 		}
 	}
 

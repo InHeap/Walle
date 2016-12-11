@@ -74,6 +74,26 @@ class DeviceService {
             throw 'No Parameter Found';
         }
     }
+    getUserTransactions(params) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let e = index_1.context.transactions.getEntity();
+            let c = index_1.context.getCriteria();
+            if (params.userId) {
+                c.add(e.senderId.eq(params.userId).or(e.receiverId.eq(params.userId)));
+            }
+            if (params.fromDate) {
+                c.add(e.crtdAt.gt(params.fromDate));
+            }
+            if (params.toDate) {
+                c.add(e.crtdAt.lteq(params.toDate));
+            }
+            let q = index_1.context.transactions.where(c);
+            if (params.index || params.limit) {
+                q = q.limit(params.limit, params.index);
+            }
+            return yield q.list();
+        });
+    }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = DeviceService;
