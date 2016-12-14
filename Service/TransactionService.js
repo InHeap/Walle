@@ -7,16 +7,21 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const entity = require("es-entity");
 const index_1 = require("../index");
 const Transaction_1 = require("../Model/Transaction");
-var transactionPropertyTrans = new entity.Util.PropertyTransformer();
-transactionPropertyTrans.fields.push('email', 'firstName', 'lastName');
-class DeviceService {
-    constructor() {
-    }
-    copyProperties(transaction, entity) {
-        transaction = transactionPropertyTrans.assignEntity(transaction, entity);
+var TransactionStatus;
+(function (TransactionStatus) {
+    TransactionStatus[TransactionStatus["INITIATED"] = 0] = "INITIATED";
+    TransactionStatus[TransactionStatus["PROCESSED"] = 1] = "PROCESSED";
+})(TransactionStatus = exports.TransactionStatus || (exports.TransactionStatus = {}));
+class TransactionService {
+    copyProperties(transaction, model) {
+        transaction.senderId.set(model.senderId);
+        transaction.senderDeviceId.set(model.senderDeviceId);
+        transaction.receiverId.set(model.receiverId);
+        transaction.receiverDeviceId.set(model.receiverDeviceId);
+        transaction.amount.set(model.amount);
+        transaction.status.set(TransactionStatus[model.status]);
         return transaction;
     }
     get(id) {
@@ -41,6 +46,19 @@ class DeviceService {
                 transaction = this.copyProperties(transaction, model);
             }
             transaction = yield index_1.context.transactions.insertOrUpdate(transaction);
+            if (model.data) {
+                let keys = Reflect.ownKeys(model.data);
+                keys.forEach((key) => {
+                    let value = Reflect.get(model.data, key);
+                    if (!(value && typeof value == 'string'))
+                        throw 'Invalid Transaction Metadata for key: ' + key.toString();
+                    let tm = index_1.context.transactionMetas.getEntity();
+                    tm.transactionId.set(transaction.id.get());
+                    tm.key.set(key.toString());
+                    tm.value.set(value);
+                    index_1.context.transactionMetas.insertOrUpdate(tm);
+                });
+            }
             return transaction;
         });
     }
@@ -94,6 +112,14 @@ class DeviceService {
             return yield q.list();
         });
     }
+    getMetadatas(transactionId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let c = index_1.context.getCriteria();
+            return yield index_1.context.transactionMetas.where((e) => {
+                return e.transactionId.eq(transactionId);
+            }).list();
+        });
+    }
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.default = DeviceService;
+exports.default = TransactionService;

@@ -27,7 +27,7 @@ function AuthFilter(req, res, next) {
             let token = authorization.split(' ')[1];
             if (!token || user.accessToken.get() !== token)
                 throw 'Authorization token invalid';
-            let deviceId = Number.parseInt(req.headers['deviceId']);
+            let deviceId = Number.parseInt(req.headers['deviceid']);
             if (!deviceId)
                 throw 'Device Id is required';
             let deviceService = new DeviceService_1.default();

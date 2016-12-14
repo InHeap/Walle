@@ -4,10 +4,8 @@ import DbContext from "../Model/DbContext";
 import User from '../Model/User';
 import Device from '../Model/Device';
 
-var devicePropertyTrans = new entity.Util.PropertyTransformer();
-devicePropertyTrans.fields.push('name', 'description', 'payable', 'platform');
-
 export enum DevicePlatform {
+	DEFAULT,
 	WEB,
 	ANDROID,
 	IOS
@@ -15,11 +13,10 @@ export enum DevicePlatform {
 
 export default class DeviceService {
 
-	constructor() {
-	}
-
-	copyProperties(device: Device, entity: any): Device {
-		device = devicePropertyTrans.assignEntity(device, entity);
+	copyProperties(device: Device, model: any): Device {
+		device.name.set(model.name);
+		device.payable.set(model.payable);
+		device.platform.set(model.platform);
 		return device;
 	}
 

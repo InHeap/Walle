@@ -8,8 +8,7 @@ class Transaction {
         this.receiverId = new es_entity_1.Type.Number();
         this.receiverDeviceId = new es_entity_1.Type.Number();
         this.amount = new es_entity_1.Type.Number();
-        this.title = new es_entity_1.Type.String();
-        this.description = new es_entity_1.Type.String();
+        this.status = new es_entity_1.Type.Number();
         this.crtdAt = new es_entity_1.Type.Date();
         this.uptdAt = new es_entity_1.Type.Date();
     }

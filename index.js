@@ -27,17 +27,16 @@ config.dbConfig.driver = mysql;
 var context = new DbContext_1.default(config.dbConfig);
 exports.context = context;
 context.init();
-router.set("Context", context);
 router.setApp(app);
 app.use([function (err, req, res, next) {
         console.error(err);
         res.status(err.status ? err.status : 400);
         if (err.message)
-            res.send(err.message);
+            res.json(err.message);
         else if (err)
-            res.send(err);
+            res.json(err);
         else
-            res.send("Something Broke!");
+            res.json("Something Broke!");
     }]);
 var server = app.listen(3003, function () {
     var host = server.address().address;

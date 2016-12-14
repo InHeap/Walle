@@ -3,16 +3,31 @@ import { context } from "../index";
 import DbContext from "../Model/DbContext";
 import Transaction from '../Model/Transaction';
 
-var transactionPropertyTrans = new entity.Util.PropertyTransformer();
-transactionPropertyTrans.fields.push('email', 'firstName', 'lastName');
+export enum TransactionStatus {
+	INITIATED,
+	PROCESSED
+}
 
-export default class DeviceService {
+export interface TransferPxy {
+	id?: number
+	senderId: number;
+	senderDeviceId: number;
+	receiverId: number;
+	receiverDeviceId: number;
+	amount: number;
+	status: string;
+	data?: any;
+}
 
-	constructor() {
-	}
+export default class TransactionService {
 
-	copyProperties(transaction: Transaction, entity: any): Transaction {
-		transaction = transactionPropertyTrans.assignEntity(transaction, entity);
+	private copyProperties(transaction: Transaction, model: TransferPxy): Transaction {
+		transaction.senderId.set(model.senderId);
+		transaction.senderDeviceId.set(model.senderDeviceId);
+		transaction.receiverId.set(model.receiverId);
+		transaction.receiverDeviceId.set(model.receiverDeviceId);
+		transaction.amount.set(model.amount);
+		transaction.status.set(TransactionStatus[<string>model.status]);
 		return transaction;
 	}
 
@@ -22,7 +37,7 @@ export default class DeviceService {
 		}).unique();
 	}
 
-	async save(model): Promise<Transaction> {
+	async save(model: Transaction | TransferPxy): Promise<Transaction> {
 		let transaction: Transaction = null;
 		if (model instanceof Transaction) {
 			transaction = model;
@@ -34,6 +49,22 @@ export default class DeviceService {
 			transaction = this.copyProperties(transaction, model);
 		}
 		transaction = await context.transactions.insertOrUpdate(transaction);
+
+		// Transaction Metadata
+		if ((<TransferPxy>model).data) {
+			let keys = Reflect.ownKeys((<TransferPxy>model).data);
+			keys.forEach((key) => {
+				let value = Reflect.get((<TransferPxy>model).data, key);
+				if (!(value && typeof value == 'string'))
+					throw 'Invalid Transaction Metadata for key: ' + key.toString();
+
+				let tm = context.transactionMetas.getEntity();
+				tm.transactionId.set(transaction.id.get());
+				tm.key.set(key.toString());
+				tm.value.set(value);
+				context.transactionMetas.insertOrUpdate(tm);
+			});
+		}
 		return transaction;
 	}
 
@@ -81,6 +112,13 @@ export default class DeviceService {
 			q = q.limit(params.limit, params.index)
 		}
 		return await q.list();
+	}
+
+	async getMetadatas(transactionId) {
+		let c = context.getCriteria();
+		return await context.transactionMetas.where((e) => {
+			return e.transactionId.eq(transactionId);
+		}).list();
 	}
 
 }

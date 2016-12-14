@@ -11,8 +11,7 @@ export default class Transaction {
 	receiverId: Type.Number = new Type.Number();
 	receiverDeviceId: Type.Number = new Type.Number();
 	amount: Type.Number = new Type.Number();
-	title: Type.String = new Type.String();
-	description: Type.String = new Type.String();
+	status: Type.Number = new Type.Number();
 	crtdAt: Type.Date = new Type.Date();
 	uptdAt: Type.Date = new Type.Date();
 }

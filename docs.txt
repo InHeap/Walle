@@ -106,8 +106,6 @@ Request Body:
 	senderDeviceId: senderDeviceId,
 	amount: amount,
 	token: token,
-	title: title,							// optional
-	description: description	// optional
 }
 
 4. Paying api for the Sender

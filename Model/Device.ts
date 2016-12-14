@@ -9,7 +9,6 @@ export default class Device {
 	userId: Type.Number = new Type.Number();
 	balance: Type.Number = new Type.Number();
 	name: Type.String = new Type.String();
-	description: Type.String = new Type.String();
 	secret: Type.String = new Type.String();
 	platform: Type.Number = new Type.Number();
 	expireAt: Type.Date = new Type.Date();

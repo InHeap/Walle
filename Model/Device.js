@@ -6,7 +6,6 @@ class Device {
         this.userId = new es_entity_1.Type.Number();
         this.balance = new es_entity_1.Type.Number();
         this.name = new es_entity_1.Type.String();
-        this.description = new es_entity_1.Type.String();
         this.secret = new es_entity_1.Type.String();
         this.platform = new es_entity_1.Type.Number();
         this.expireAt = new es_entity_1.Type.Date();

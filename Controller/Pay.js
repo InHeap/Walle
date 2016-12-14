@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const crypto = require("crypto");
 const es = require("es-controller");
+const random = require("randomstring");
 const UserService_1 = require("../Service/UserService");
 const DeviceService_1 = require("../Service/DeviceService");
 const TransactionService_1 = require("../Service/TransactionService");
@@ -26,6 +27,25 @@ class Pay extends es.Controller {
         this.user = request.user;
         this.device = request.device;
     }
+    $getTransPxy(tran) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let sender = yield this.userService.get(tran.senderId.get());
+            let receiver = yield this.userService.get(tran.receiverId.get());
+            let metadatas = yield this.transactionService.getMetadatas(tran.id.get());
+            let data = new Object();
+            metadatas.forEach((m) => {
+                data[m.key.get()] = m.value.get();
+            });
+            return {
+                id: tran.id.get(),
+                senderUserName: sender.userName.get(),
+                receiverUserName: receiver.userName.get(),
+                amount: tran.amount.get(),
+                createdAt: tran.crtdAt.get(),
+                data: data
+            };
+        });
+    }
     get(params) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -33,15 +53,7 @@ class Pay extends es.Controller {
                     let t = yield this.transactionService.get(params.id);
                     if (this.user.id.get() !== t.senderId.get() || this.user.id.get() !== t.receiverId.get())
                         throw 'UnAuthorized Access';
-                    let sender = yield this.userService.get(t.senderId.get());
-                    let receiver = yield this.userService.get(t.receiverId.get());
-                    return {
-                        id: t.id.get(),
-                        senderUserName: sender.userName.get(),
-                        receiverUserName: receiver.userName.get(),
-                        amount: t.amount.get(),
-                        createdAt: t.crtdAt.get()
-                    };
+                    return yield this.$getTransPxy(t);
                 }
                 else {
                     let index = Number.parseInt(params.index);
@@ -57,15 +69,7 @@ class Pay extends es.Controller {
                     });
                     let res = [];
                     transactions.forEach((t) => __awaiter(this, void 0, void 0, function* () {
-                        let sender = yield this.userService.get(t.senderId.get());
-                        let receiver = yield this.userService.get(t.receiverId.get());
-                        res.push({
-                            id: t.id.get(),
-                            senderUserName: sender.userName.get(),
-                            receiverUserName: receiver.userName.get(),
-                            amount: t.amount.get(),
-                            createdAt: t.crtdAt.get()
-                        });
+                        res.push(yield this.$getTransPxy(t));
                     }));
                     return res;
                 }
@@ -99,46 +103,13 @@ class Pay extends es.Controller {
                 throw 'Invalid Sender Device';
             if (senderDevice.userId != sender.id)
                 throw 'Invalid Sender Device';
-            if (senderDevice.expireAt.get().getTime() < new Date().getTime())
-                throw 'Sender Device Expired';
-            if (senderDevice.payable.get() !== true)
-                throw 'Sender Device not payable';
-            if (!amount && amount <= 0)
-                throw 'Invalid Amount';
-            let currentMinute = (new Date().getTime() / (1000 * 60)).toFixed(0);
-            let text = ':' + senderUserName + ':' + senderDeviceId + ':' + receiverUserName + ':' + amount.toString() + ':' + currentMinute + ':';
-            let hmac = crypto.createHmac('sha256', senderDevice.secret.get());
-            hmac.update(text);
-            let computedHmac = hmac.digest('base64');
-            if (token !== computedHmac)
-                throw 'Invalid Token';
-            if (sender.balance.get() < amount)
-                throw 'Sender InSufficient Balance';
-            sender.balance.set(sender.balance.get() - amount);
-            receiver.balance.set(receiver.balance.get() + amount);
-            yield this.userService.save(sender);
-            yield this.userService.save(receiver);
-            let transaction = yield this.transactionService.save({
-                senderId: sender.id.get(),
-                senderDeviceId: senderDeviceId,
-                receiverId: receiver.id.get(),
-                receiverDeviceId: receiverDevice.id.get(),
-                amount: amount,
-                title: body.title,
-                description: body.description
-            });
-            return {
-                id: transaction.id.get(),
-                senderUserName: sender.userName.get(),
-                receiverUserName: receiver.userName.get(),
-                amount: transaction.amount.get(),
-                createdAt: transaction.crtdAt.get()
-            };
+            return yield this.$createTransaction(sender, senderDevice, receiver, receiverDevice, amount, token, body.data);
         });
     }
     put(params, body) {
         return __awaiter(this, void 0, void 0, function* () {
             let receiverUserName = params.receiverUserName;
+            let receiverDeviceId = params.receiverDeviceId;
             let amount = Number.parseInt(params.amount);
             let senderUserName = this.user.userName.get();
             let senderDevice = this.device;
@@ -148,6 +119,18 @@ class Pay extends es.Controller {
             let receiver = yield this.userService.getByUserName(receiverUserName);
             if (!receiver)
                 throw 'Receiver Not Found';
+            let receiverDevice = null;
+            if (receiverDeviceId) {
+                receiverDevice = yield this.deviceService.get(receiverDeviceId);
+                if (receiverDevice.userId.get() != receiver.id.get())
+                    throw 'UnAuthorized Device Access';
+            }
+            let sender = yield this.userService.getByUserName(senderUserName);
+            return yield this.$createTransaction(sender, senderDevice, receiver, receiverDevice, amount, token, body.data);
+        });
+    }
+    $createTransaction(sender, senderDevice, receiver, receiverDevice, amount, token, data) {
+        return __awaiter(this, void 0, void 0, function* () {
             if (senderDevice.expireAt.get().getTime() < new Date().getTime())
                 throw 'Sender Device Expired';
             if (senderDevice.payable.get() !== true)
@@ -155,13 +138,12 @@ class Pay extends es.Controller {
             if (!amount && amount <= 0)
                 throw 'Invalid Amount';
             let currentMinute = (new Date().getTime() / (1000 * 60)).toFixed(0);
-            let text = ':' + senderUserName + ':' + senderDevice.id.get().toString() + ':' + receiverUserName + ':' + amount.toString() + ':' + currentMinute + ':';
+            let text = ':' + sender.userName.get() + ':' + senderDevice.id.get().toString() + ':' + receiver.userName.get() + ':' + amount.toString() + ':' + currentMinute + ':';
             let hmac = crypto.createHmac('sha256', senderDevice.secret.get());
             hmac.update(text);
             let computedHmac = hmac.digest('base64');
             if (token !== computedHmac)
                 throw 'Invalid Token';
-            let sender = yield this.userService.getByUserName(senderUserName);
             if (sender.balance.get() < amount)
                 throw 'Sender InSufficient Balance';
             sender.balance.set(sender.balance.get() - amount);
@@ -172,18 +154,15 @@ class Pay extends es.Controller {
                 senderId: sender.id.get(),
                 senderDeviceId: senderDevice.id.get(),
                 receiverId: receiver.id.get(),
-                receiverDeviceId: null,
+                receiverDeviceId: receiverDevice ? receiverDevice.id.get() : null,
                 amount: amount,
-                title: body.title,
-                description: body.description
+                status: "PROCESSED",
+                data: data
             });
-            return {
-                id: transaction.id.get(),
-                senderUserName: sender.userName.get(),
-                receiverUserName: receiver.userName.get(),
-                amount: transaction.amount.get(),
-                createdAt: transaction.crtdAt.get()
-            };
+            if (senderDevice.platform.get() == DeviceService_1.DevicePlatform.WEB) {
+                senderDevice.secret.set(random.generate());
+            }
+            return yield this.$getTransPxy(transaction);
         });
     }
 }

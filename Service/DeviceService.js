@@ -7,22 +7,20 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const entity = require("es-entity");
 const index_1 = require("../index");
 const Device_1 = require("../Model/Device");
-var devicePropertyTrans = new entity.Util.PropertyTransformer();
-devicePropertyTrans.fields.push('name', 'description', 'payable', 'platform');
 var DevicePlatform;
 (function (DevicePlatform) {
-    DevicePlatform[DevicePlatform["WEB"] = 0] = "WEB";
-    DevicePlatform[DevicePlatform["ANDROID"] = 1] = "ANDROID";
-    DevicePlatform[DevicePlatform["IOS"] = 2] = "IOS";
+    DevicePlatform[DevicePlatform["DEFAULT"] = 0] = "DEFAULT";
+    DevicePlatform[DevicePlatform["WEB"] = 1] = "WEB";
+    DevicePlatform[DevicePlatform["ANDROID"] = 2] = "ANDROID";
+    DevicePlatform[DevicePlatform["IOS"] = 3] = "IOS";
 })(DevicePlatform = exports.DevicePlatform || (exports.DevicePlatform = {}));
 class DeviceService {
-    constructor() {
-    }
-    copyProperties(device, entity) {
-        device = devicePropertyTrans.assignEntity(device, entity);
+    copyProperties(device, model) {
+        device.name.set(model.name);
+        device.payable.set(model.payable);
+        device.platform.set(model.platform);
         return device;
     }
     get(id) {

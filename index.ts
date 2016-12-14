@@ -41,7 +41,7 @@ router.set('config', config);
 config.dbConfig.driver = mysql;
 var context: DbContext = new DbContext(config.dbConfig);
 context.init();
-router.set("Context", context);
+// router.set("Context", context);
 
 router.setApp(app);
 
@@ -49,9 +49,9 @@ router.setApp(app);
 app.use([function (err, req, res, next) {
 	console.error(err);
 	res.status(err.status ? err.status : 400);
-	if (err.message) res.send(err.message);
-	else if (err) res.send(err);
-	else res.send("Something Broke!");
+	if (err.message) res.json(err.message);
+	else if (err) res.json(err);
+	else res.json("Something Broke!");
 }]);
 
 // Start Server

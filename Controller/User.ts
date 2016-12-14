@@ -1,7 +1,6 @@
 import * as es from 'es-controller';
 import * as entity from "es-entity";
 import UserService from "../Service/UserService";
-import AuthFilter from '../AuthFilter';
 
 export default class User extends es.Controller {
 	userId: number = 0;

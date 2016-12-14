@@ -235,8 +235,8 @@ es-controller@*:
     xregexp "*"
 
 es-entity@*:
-  version "1.0.34"
-  resolved "https://registry.yarnpkg.com/es-entity/-/es-entity-1.0.34.tgz#ecb7c755b36a776794b488ba71c8945dd9710e40"
+  version "1.0.35"
+  resolved "https://registry.yarnpkg.com/es-entity/-/es-entity-1.0.35.tgz#43c01372825111b1a0065b4675f907c0830ac74d"
   dependencies:
     case "*"
 
@@ -648,8 +648,8 @@ raw-body@~2.1.7:
     unpipe "1.0.0"
 
 razorpay@*:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/razorpay/-/razorpay-1.1.0.tgz#83bd85bf858f5e6a34e4b94e2365bd43bd92b9a4"
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/razorpay/-/razorpay-1.2.0.tgz#1db2be4e88b4238712862238eaa57cb04d77c471"
   dependencies:
     request "^2.75.0"
     request-promise "^4.1.1"
@@ -806,8 +806,8 @@ tunnel-agent@~0.4.1:
   resolved "https://registry.yarnpkg.com/tunnel-agent/-/tunnel-agent-0.4.3.tgz#6373db76909fe570e08d73583365ed828a74eeeb"
 
 tweetnacl@^0.14.3, tweetnacl@~0.14.0:
-  version "0.14.4"
-  resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.4.tgz#8c9dbfb52795686f166cd2023794bcf103d13c2b"
+  version "0.14.5"
+  resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-0.14.5.tgz#5ae68177f192d4456269d108afa93ff8743f4f64"
 
 type-is@~1.6.13:
   version "1.6.14"

@@ -25,7 +25,7 @@ export default async function AuthFilter(req: express.Request & { device }, res:
 		if (!token || user.accessToken.get() !== token)
 			throw 'Authorization token invalid';
 
-		let deviceId = Number.parseInt(req.headers['deviceId']);
+		let deviceId = Number.parseInt(req.headers['deviceid']);
 		if (!deviceId)
 			throw 'Device Id is required';
 
