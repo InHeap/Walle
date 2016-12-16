@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Testing</title>
+</head>
+
+<body>
+	<form action="{{transferUrl}}" method="POST">
+		<script src="https://checkout.razorpay.com/v1/checkout.js" 
+			data-key="{{key}}" 
+			data-amount="{{amount}}" 
+			data-buttontext="Pay"
+			data-name="Application" 
+			data-description="Fill Wallet" 
+			data-image="https://your-awesome-site.com/your_logo.jpg" 
+			data-prefill.name="{{fullName}}"
+			data-prefill.email="help@inheap.com" 
+			data-theme.color="#F37254"></script>
+		<input type="hidden" value="{{userName}}" name="userName">
+		<input type="hidden" value="{{amount}}" name="amount">
+	</form>
+
+	<!-- Convert to manual process -->
+</body>
+
+</html>

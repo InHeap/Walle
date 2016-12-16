@@ -7,6 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
+const es_cache_1 = require("es-cache");
 const index_1 = require("../index");
 const Transaction_1 = require("../Model/Transaction");
 var TransactionStatus;
@@ -14,7 +15,34 @@ var TransactionStatus;
     TransactionStatus[TransactionStatus["INITIATED"] = 0] = "INITIATED";
     TransactionStatus[TransactionStatus["PROCESSED"] = 1] = "PROCESSED";
 })(TransactionStatus = exports.TransactionStatus || (exports.TransactionStatus = {}));
+var transactionCache = new es_cache_1.default({
+    valueFunction: function (id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield index_1.globalContext.transactions.where((t) => {
+                return t.id.eq(id);
+            }).unique();
+        });
+    },
+    limit: 65536
+});
+var transactionMetaCache = new es_cache_1.default({
+    valueFunction: function (transactionId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield index_1.globalContext.transactionMetas.where((e) => {
+                return e.transactionId.eq(transactionId);
+            }).list();
+        });
+    },
+    limit: 65536
+});
 class TransactionService {
+    constructor(context) {
+        this.context = null;
+        if (context)
+            this.context = context;
+        else
+            this.context = index_1.globalContext;
+    }
     copyProperties(transaction, model) {
         transaction.senderId.set(model.senderId);
         transaction.senderDeviceId.set(model.senderDeviceId);
@@ -26,9 +54,7 @@ class TransactionService {
     }
     get(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield index_1.context.transactions.where((d) => {
-                return d.id.eq(id);
-            }).unique();
+            return yield transactionCache.get(id);
         });
     }
     save(model) {
@@ -38,54 +64,48 @@ class TransactionService {
                 transaction = model;
             }
             else if (model.id) {
-                transaction = yield index_1.context.transactions.get(model.id);
+                transaction = yield this.context.transactions.get(model.id);
                 transaction = this.copyProperties(transaction, model);
             }
             else {
-                transaction = index_1.context.transactions.getEntity();
+                transaction = this.context.transactions.getEntity();
                 transaction = this.copyProperties(transaction, model);
             }
-            transaction = yield index_1.context.transactions.insertOrUpdate(transaction);
+            transaction = yield this.context.transactions.insertOrUpdate(transaction);
+            transactionCache.del(transaction.id.get());
             if (model.data) {
                 let keys = Reflect.ownKeys(model.data);
                 keys.forEach((key) => {
                     let value = Reflect.get(model.data, key);
                     if (!(value && typeof value == 'string'))
                         throw 'Invalid Transaction Metadata for key: ' + key.toString();
-                    let tm = index_1.context.transactionMetas.getEntity();
+                    let tm = this.context.transactionMetas.getEntity();
                     tm.transactionId.set(transaction.id.get());
                     tm.key.set(key.toString());
                     tm.value.set(value);
-                    index_1.context.transactionMetas.insertOrUpdate(tm);
+                    this.context.transactionMetas.insertOrUpdate(tm);
+                    transactionMetaCache.del(tm.transactionId.get());
                 });
             }
             return transaction;
         });
     }
-    delete(id) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let transaction = yield index_1.context.transactions.where((a) => {
-                return a.id.eq(id);
-            }).unique();
-            yield index_1.context.transactions.delete(transaction);
-        });
-    }
     list(params) {
         return __awaiter(this, void 0, void 0, function* () {
             let criteria = this.getExpression(params);
-            return yield index_1.context.transactions.where(criteria).list();
+            return yield this.context.transactions.where(criteria).list();
         });
     }
     single(params) {
         return __awaiter(this, void 0, void 0, function* () {
             let criteria = this.getExpression(params);
-            return yield index_1.context.transactions.where(criteria).unique();
+            return yield this.context.transactions.where(criteria).unique();
         });
     }
     getExpression(params) {
         if (params) {
-            let e = index_1.context.transactions.getEntity();
-            let c = index_1.context.getCriteria();
+            let e = this.context.transactions.getEntity();
+            let c = this.context.getCriteria();
             return c;
         }
         else {
@@ -94,8 +114,8 @@ class TransactionService {
     }
     getUserTransactions(params) {
         return __awaiter(this, void 0, void 0, function* () {
-            let e = index_1.context.transactions.getEntity();
-            let c = index_1.context.getCriteria();
+            let e = this.context.transactions.getEntity();
+            let c = this.context.getCriteria();
             if (params.userId) {
                 c.add(e.senderId.eq(params.userId).or(e.receiverId.eq(params.userId)));
             }
@@ -105,7 +125,7 @@ class TransactionService {
             if (params.toDate) {
                 c.add(e.crtdAt.lteq(params.toDate));
             }
-            let q = index_1.context.transactions.where(c);
+            let q = this.context.transactions.where(c);
             if (params.index || params.limit) {
                 q = q.limit(params.limit, params.index);
             }
@@ -114,10 +134,7 @@ class TransactionService {
     }
     getMetadatas(transactionId) {
         return __awaiter(this, void 0, void 0, function* () {
-            let c = index_1.context.getCriteria();
-            return yield index_1.context.transactionMetas.where((e) => {
-                return e.transactionId.eq(transactionId);
-            }).list();
+            return yield transactionMetaCache.get(transactionId);
         });
     }
 }

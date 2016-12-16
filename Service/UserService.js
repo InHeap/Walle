@@ -7,21 +7,44 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
-const entity = require("es-entity");
+const es_cache_1 = require("es-cache");
 const index_1 = require("../index");
 const User_1 = require("../Model/User");
-var userPropertyTrans = new entity.Util.PropertyTransformer();
-userPropertyTrans.fields.push('email', 'firstName', 'lastName', 'phoneNo');
+var userCache = new es_cache_1.default({
+    valueFunction: function (key) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield index_1.globalContext.users.where((u) => {
+                return u.userName.eq(key);
+            }).unique();
+        });
+    },
+    limit: 65536
+});
 class UserService {
+    constructor(context) {
+        this.context = null;
+        if (context)
+            this.context = context;
+        else
+            this.context = index_1.globalContext;
+    }
     copyProperties(user, entity) {
-        user = userPropertyTrans.assignEntity(user, entity);
+        user.email.set(entity.email);
+        user.firstName.set(entity.firstName);
+        user.lastName.set(entity.lastName);
+        user.phoneNo.set(entity.phoneNo);
         return user;
     }
     get(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield index_1.context.users.where((u) => {
+            return yield this.context.users.where((u) => {
                 return u.id.eq(id);
             }).unique();
+        });
+    }
+    getByUserName(userName) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield userCache.get(userName);
         });
     }
     save(model) {
@@ -31,64 +54,27 @@ class UserService {
                 user = model;
             }
             else if (model.id) {
-                user = yield index_1.context.users.get(model.id);
+                user = yield this.context.users.get(model.id);
                 user = this.copyProperties(user, model);
             }
             else {
-                user = index_1.context.users.getEntity();
+                user = this.context.users.getEntity();
                 user = this.copyProperties(user, model);
                 user.userName.set(model.userName);
                 user.password.set(model.password);
             }
-            user = yield index_1.context.users.insertOrUpdate(user);
+            user = yield this.context.users.insertOrUpdate(user);
+            userCache.del(user.userName.get());
             return user;
         });
     }
     delete(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            let user = yield index_1.context.users.where((a) => {
+            let user = yield this.context.users.where((a) => {
                 return a.id.eq(id);
             }).unique();
-            yield index_1.context.users.delete(user);
+            yield this.context.users.delete(user);
         });
-    }
-    getByUserName(userName) {
-        return __awaiter(this, void 0, void 0, function* () {
-            return yield index_1.context.users.where((u) => {
-                return u.userName.eq(userName);
-            }).unique();
-        });
-    }
-    list(params) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let criteria = this.getExpression(params);
-            return yield index_1.context.users.where(criteria).list();
-        });
-    }
-    single(params) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let criteria = this.getExpression(params);
-            return yield index_1.context.users.where(criteria).unique();
-        });
-    }
-    getExpression(params) {
-        if (params) {
-            let e = index_1.context.users.getEntity();
-            let c = index_1.context.getCriteria();
-            if (params.userName) {
-                c = c.add(e.userName.eq(params.userName));
-            }
-            if (params.password) {
-                c = c.add(e.password.eq(params.password));
-            }
-            if (params.accessToken) {
-                c = c.add(e.accessToken.eq(params.accessToken));
-            }
-            return c;
-        }
-        else {
-            throw 'No Parameter Found';
-        }
     }
 }
 Object.defineProperty(exports, "__esModule", { value: true });

@@ -10,6 +10,7 @@ class Device {
         this.platform = new es_entity_1.Type.Number();
         this.expireAt = new es_entity_1.Type.Date();
         this.payable = new es_entity_1.Type.Boolean();
+        this.lastToken = new es_entity_1.Type.String();
         this.active = new es_entity_1.Type.Boolean();
         this.crtdAt = new es_entity_1.Type.Date();
         this.uptdAt = new es_entity_1.Type.Date();

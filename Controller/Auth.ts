@@ -127,6 +127,7 @@ export default class Auth extends es.Controller {
 		// Set user token expity as now
 	}
 
+	// Web payment api page
 	async pay(params, model) {
 		let callbackUrl = model.callbackUrl;
 		let receiverUsername = model.receiverUsername;

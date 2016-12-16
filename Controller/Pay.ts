@@ -10,6 +10,7 @@ import DeviceService, { DevicePlatform } from '../Service/DeviceService';
 import Transaction from '../Model/Transaction';
 import TransactionService from '../Service/TransactionService';
 import AuthFilter from '../AuthFilter';
+import { globalContext } from "../index";
 
 export default class Pay extends es.Controller {
 	user: User = null;
@@ -145,7 +146,7 @@ export default class Pay extends es.Controller {
 		if (senderDevice.payable.get() !== true)
 			throw 'Sender Device not payable';
 
-		if (!amount && amount <= 0)
+		if (!amount || amount <= 0 || amount > 2000000)
 			throw 'Invalid Amount';
 
 		let currentMinute = Math.round(new Date().getTime() / (1000 * 60));
@@ -155,36 +156,52 @@ export default class Pay extends es.Controller {
 		hmac.update(text);
 		let computedHmac = hmac.digest('base64');
 
-		if (token !== computedHmac)
+		if (token !== computedHmac || token == senderDevice.lastToken.get())
 			throw 'Invalid Token';
 
 
 		if (sender.balance.get() < amount)
 			throw 'Sender InSufficient Balance';
 
-		sender.balance.set(sender.balance.get() - amount);
-		receiver.balance.set(receiver.balance.get() + amount);
-
-		await this.userService.save(sender);
-		await this.userService.save(receiver);
-
-		// Save Transacion
-		let transaction = await this.transactionService.save({
-			senderId: sender.id.get(),
-			senderDeviceId: senderDevice.id.get(),
-			receiverId: receiver.id.get(),
-			receiverDeviceId: receiverDevice ? receiverDevice.id.get() : null,
-			amount: amount,
-			status: "PROCESSED",
-			data: data
-		});
-
 		// Reset device secret if platform is WEB
 		if (senderDevice.platform.get() == DevicePlatform.WEB) {
 			senderDevice.secret.set(random.generate());
 		}
 
-		return await this.$getTransPxy(transaction);
+		let trContext = await globalContext.initTransaction();
+		try {
+			this.userService.context = trContext;
+			this.deviceService.context = trContext;
+			this.transactionService.context = trContext;
+
+			sender = await this.userService.get(sender.id.get());
+			receiver = await this.userService.get(receiver.id.get());
+
+			sender.balance.set(sender.balance.get() - amount);
+			receiver.balance.set(receiver.balance.get() + amount);
+			senderDevice.lastToken.set(token);
+
+			await this.userService.save(sender);
+			await this.userService.save(receiver);
+			await this.deviceService.save(senderDevice);
+			// Save Transacion
+			let transaction = await this.transactionService.save({
+				senderId: sender.id.get(),
+				senderDeviceId: senderDevice.id.get(),
+				receiverId: receiver.id.get(),
+				receiverDeviceId: receiverDevice ? receiverDevice.id.get() : null,
+				amount: amount,
+				status: "PROCESSED",
+				data: data
+			});
+			await trContext.commit();
+
+			return await this.$getTransPxy(transaction);
+		} catch (err) {
+			console.log(err);
+			trContext.rollback();
+			throw 'Tranfer Failed';
+		}
 	}
 
 }

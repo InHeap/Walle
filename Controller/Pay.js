@@ -13,6 +13,7 @@ const random = require("randomstring");
 const UserService_1 = require("../Service/UserService");
 const DeviceService_1 = require("../Service/DeviceService");
 const TransactionService_1 = require("../Service/TransactionService");
+const index_1 = require("../index");
 class Pay extends es.Controller {
     constructor() {
         super(...arguments);
@@ -135,34 +136,50 @@ class Pay extends es.Controller {
                 throw 'Sender Device Expired';
             if (senderDevice.payable.get() !== true)
                 throw 'Sender Device not payable';
-            if (!amount && amount <= 0)
+            if (!amount || amount <= 0 || amount > 2000000)
                 throw 'Invalid Amount';
-            let currentMinute = (new Date().getTime() / (1000 * 60)).toFixed(0);
-            let text = ':' + sender.userName.get() + ':' + senderDevice.id.get().toString() + ':' + receiver.userName.get() + ':' + amount.toString() + ':' + currentMinute + ':';
+            let currentMinute = Math.round(new Date().getTime() / (1000 * 60));
+            let text = ':' + sender.userName.get() + ':' + senderDevice.id.get().toString() + ':' + receiver.userName.get() + ':' + amount.toString() + ':' + currentMinute.toString() + ':';
             let hmac = crypto.createHmac('sha256', senderDevice.secret.get());
             hmac.update(text);
             let computedHmac = hmac.digest('base64');
-            if (token !== computedHmac)
+            if (token !== computedHmac || token == senderDevice.lastToken.get())
                 throw 'Invalid Token';
             if (sender.balance.get() < amount)
                 throw 'Sender InSufficient Balance';
-            sender.balance.set(sender.balance.get() - amount);
-            receiver.balance.set(receiver.balance.get() + amount);
-            yield this.userService.save(sender);
-            yield this.userService.save(receiver);
-            let transaction = yield this.transactionService.save({
-                senderId: sender.id.get(),
-                senderDeviceId: senderDevice.id.get(),
-                receiverId: receiver.id.get(),
-                receiverDeviceId: receiverDevice ? receiverDevice.id.get() : null,
-                amount: amount,
-                status: "PROCESSED",
-                data: data
-            });
             if (senderDevice.platform.get() == DeviceService_1.DevicePlatform.WEB) {
                 senderDevice.secret.set(random.generate());
             }
-            return yield this.$getTransPxy(transaction);
+            let trContext = yield index_1.globalContext.initTransaction();
+            try {
+                this.userService.context = trContext;
+                this.deviceService.context = trContext;
+                this.transactionService.context = trContext;
+                sender = yield this.userService.get(sender.id.get());
+                receiver = yield this.userService.get(receiver.id.get());
+                sender.balance.set(sender.balance.get() - amount);
+                receiver.balance.set(receiver.balance.get() + amount);
+                senderDevice.lastToken.set(token);
+                yield this.userService.save(sender);
+                yield this.userService.save(receiver);
+                yield this.deviceService.save(senderDevice);
+                let transaction = yield this.transactionService.save({
+                    senderId: sender.id.get(),
+                    senderDeviceId: senderDevice.id.get(),
+                    receiverId: receiver.id.get(),
+                    receiverDeviceId: receiverDevice ? receiverDevice.id.get() : null,
+                    amount: amount,
+                    status: "PROCESSED",
+                    data: data
+                });
+                yield trContext.commit();
+                return yield this.$getTransPxy(transaction);
+            }
+            catch (err) {
+                console.log(err);
+                trContext.rollback();
+                throw 'Tranfer Failed';
+            }
         });
     }
 }

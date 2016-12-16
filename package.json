@@ -8,14 +8,19 @@
   "dependencies": {
     "body-parser": "*",
     "cors": "*",
+    "es-cache": "*",
     "es-controller": "*",
     "es-entity": "*",
     "express": "*",
+    "hbs": "*",
     "helmet": "*",
+    "koa-hbs": "*",
     "morgan": "*",
     "mysql": "*",
+    "nunjucks": "*",
     "randomstring": "*",
     "razorpay": "*",
-    "request-promise-native": "*"
+    "request-promise-native": "*",
+    "serve-static": "*"
   }
 }

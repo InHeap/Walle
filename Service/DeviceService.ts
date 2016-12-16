@@ -1,5 +1,7 @@
 import * as entity from "es-entity";
-import { context } from "../index";
+import Cache from 'es-cache';
+
+import { globalContext } from "../index";
 import DbContext from "../Model/DbContext";
 import User from '../Model/User';
 import Device from '../Model/Device';
@@ -11,7 +13,24 @@ export enum DevicePlatform {
 	IOS
 }
 
+var deviceCache = new Cache({
+	valueFunction: async function (id) {
+		return await globalContext.devices.where((d) => {
+			return d.id.eq(id);
+		}).unique();
+	},
+	limit: 65536
+});
+
 export default class DeviceService {
+	context: DbContext = null;
+
+	constructor(context?: DbContext) {
+		if (context)
+			this.context = context;
+		else
+			this.context = globalContext;
+	}
 
 	copyProperties(device: Device, model: any): Device {
 		device.name.set(model.name);
@@ -21,9 +40,7 @@ export default class DeviceService {
 	}
 
 	async get(id: number): Promise<Device> {
-		return await context.devices.where((d) => {
-			return d.id.eq(id);
-		}).unique();
+		return await deviceCache.get(id);
 	}
 
 	async save(model): Promise<Device> {
@@ -31,41 +48,42 @@ export default class DeviceService {
 		if (model instanceof Device) {
 			device = model;
 		} else if (model.id) {
-			device = await context.devices.get(model.id);
+			device = await this.context.devices.get(model.id);
 			device = this.copyProperties(device, model);
 		} else {
-			device = context.devices.getEntity();
+			device = this.context.devices.getEntity();
 			device = this.copyProperties(device, model);
 			device.userId.set(model.userId);
 		}
 		if (model.platform) {
 			device.platform.set(DevicePlatform[<string>model.platform]);
 		}
-		device = await context.devices.insertOrUpdate(device);
+		device = await this.context.devices.insertOrUpdate(device);
+		deviceCache.del(device.id.get());
 		return device;
 	}
 
 	async delete(id: number) {
-		let device: Device = await context.devices.where((a) => {
+		let device: Device = await this.context.devices.where((a) => {
 			return a.id.eq(id);
 		}).unique();
-		await context.devices.delete(device);
+		await this.context.devices.delete(device);
 	}
 
 	async list(params): Promise<Array<Device>> {
 		let criteria = this.getExpression(params);
-		return await context.devices.where(criteria).list();
+		return await this.context.devices.where(criteria).list();
 	}
 
 	async single(params): Promise<Device> {
 		let criteria = this.getExpression(params);
-		return await context.devices.where(criteria).unique();
+		return await this.context.devices.where(criteria).unique();
 	}
 
 	getExpression(params) {
 		if (params) {
-			let e = context.devices.getEntity();
-			let c = context.getCriteria();
+			let e = this.context.devices.getEntity();
+			let c = this.context.getCriteria();
 			if (params.userId) {
 				c = c.add(e.userId.eq(params.userId));
 			}

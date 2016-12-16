@@ -7,6 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments)).next());
     });
 };
+const es_cache_1 = require("es-cache");
 const index_1 = require("../index");
 const Device_1 = require("../Model/Device");
 var DevicePlatform;
@@ -16,7 +17,24 @@ var DevicePlatform;
     DevicePlatform[DevicePlatform["ANDROID"] = 2] = "ANDROID";
     DevicePlatform[DevicePlatform["IOS"] = 3] = "IOS";
 })(DevicePlatform = exports.DevicePlatform || (exports.DevicePlatform = {}));
+var deviceCache = new es_cache_1.default({
+    valueFunction: function (id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return yield index_1.globalContext.devices.where((d) => {
+                return d.id.eq(id);
+            }).unique();
+        });
+    },
+    limit: 65536
+});
 class DeviceService {
+    constructor(context) {
+        this.context = null;
+        if (context)
+            this.context = context;
+        else
+            this.context = index_1.globalContext;
+    }
     copyProperties(device, model) {
         device.name.set(model.name);
         device.payable.set(model.payable);
@@ -25,9 +43,7 @@ class DeviceService {
     }
     get(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            return yield index_1.context.devices.where((d) => {
-                return d.id.eq(id);
-            }).unique();
+            return yield deviceCache.get(id);
         });
     }
     save(model) {
@@ -37,45 +53,46 @@ class DeviceService {
                 device = model;
             }
             else if (model.id) {
-                device = yield index_1.context.devices.get(model.id);
+                device = yield this.context.devices.get(model.id);
                 device = this.copyProperties(device, model);
             }
             else {
-                device = index_1.context.devices.getEntity();
+                device = this.context.devices.getEntity();
                 device = this.copyProperties(device, model);
                 device.userId.set(model.userId);
             }
             if (model.platform) {
                 device.platform.set(DevicePlatform[model.platform]);
             }
-            device = yield index_1.context.devices.insertOrUpdate(device);
+            device = yield this.context.devices.insertOrUpdate(device);
+            deviceCache.del(device.id.get());
             return device;
         });
     }
     delete(id) {
         return __awaiter(this, void 0, void 0, function* () {
-            let device = yield index_1.context.devices.where((a) => {
+            let device = yield this.context.devices.where((a) => {
                 return a.id.eq(id);
             }).unique();
-            yield index_1.context.devices.delete(device);
+            yield this.context.devices.delete(device);
         });
     }
     list(params) {
         return __awaiter(this, void 0, void 0, function* () {
             let criteria = this.getExpression(params);
-            return yield index_1.context.devices.where(criteria).list();
+            return yield this.context.devices.where(criteria).list();
         });
     }
     single(params) {
         return __awaiter(this, void 0, void 0, function* () {
             let criteria = this.getExpression(params);
-            return yield index_1.context.devices.where(criteria).unique();
+            return yield this.context.devices.where(criteria).unique();
         });
     }
     getExpression(params) {
         if (params) {
-            let e = index_1.context.devices.getEntity();
-            let c = index_1.context.getCriteria();
+            let e = this.context.devices.getEntity();
+            let c = this.context.getCriteria();
             if (params.userId) {
                 c = c.add(e.userId.eq(params.userId));
             }

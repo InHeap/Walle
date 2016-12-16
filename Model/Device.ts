@@ -13,6 +13,7 @@ export default class Device {
 	platform: Type.Number = new Type.Number();
 	expireAt: Type.Date = new Type.Date();
 	payable: Type.Boolean = new Type.Boolean();
+	lastToken: Type.String = new Type.String();
 	active: Type.Boolean = new Type.Boolean();
 	crtdAt: Type.Date = new Type.Date();
 	uptdAt: Type.Date = new Type.Date();
