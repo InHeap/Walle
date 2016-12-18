@@ -12,12 +12,12 @@ export enum TransactionStatus {
 
 export interface TransferPxy {
 	id?: number
-	senderId: number;
-	senderDeviceId: number;
-	receiverId: number;
-	receiverDeviceId: number;
-	amount: number;
-	status: string;
+	senderId?: number;
+	senderDeviceId?: number;
+	receiverId?: number;
+	receiverDeviceId?: number;
+	amount?: number;
+	status?: string;
 	data?: any;
 }
 
@@ -50,12 +50,24 @@ export default class TransactionService {
 	}
 
 	private copyProperties(transaction: Transaction, model: TransferPxy): Transaction {
-		transaction.senderId.set(model.senderId);
-		transaction.senderDeviceId.set(model.senderDeviceId);
-		transaction.receiverId.set(model.receiverId);
-		transaction.receiverDeviceId.set(model.receiverDeviceId);
-		transaction.amount.set(model.amount);
-		transaction.status.set(TransactionStatus[<string>model.status]);
+		if (model.senderId) {
+			transaction.senderId.set(model.senderId);
+		}
+		if (model.senderDeviceId) {
+			transaction.senderDeviceId.set(model.senderDeviceId);
+		}
+		if (model.receiverId) {
+			transaction.receiverId.set(model.receiverId);
+		}
+		if (model.receiverDeviceId) {
+			transaction.receiverDeviceId.set(model.receiverDeviceId);
+		}
+		if (model.amount) {
+			transaction.amount.set(model.amount);
+		}
+		if (model.status) {
+			transaction.status.set(TransactionStatus[<string>model.status]);
+		}
 		return transaction;
 	}
 

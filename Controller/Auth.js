@@ -9,6 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 const random = require("randomstring");
 const es = require("es-controller");
+const crypto = require("crypto");
 const UserService_1 = require("../Service/UserService");
 const DeviceService_1 = require("../Service/DeviceService");
 class Auth extends es.Controller {
@@ -30,7 +31,8 @@ class Auth extends es.Controller {
                 throw 'Blank Password';
             if (model.password.length > 25)
                 throw 'Password should be less then 16 characters';
-            if (!(yield this.check({ userName: model.userName })))
+            let av = yield this.check({ userName: model.userName });
+            if (!av.available)
                 throw 'Duplicate User';
             if (model.phoneNo) {
             }
@@ -41,26 +43,35 @@ class Auth extends es.Controller {
     check(params) {
         return __awaiter(this, void 0, void 0, function* () {
             let userName = params.userName;
+            let available = false;
             if (!(userName && typeof userName == 'string'))
-                return false;
+                available = false;
             let u = yield this.userService.getByUserName(userName);
-            return u ? false : true;
+            available = u ? false : true;
+            return {
+                available: available
+            };
         });
     }
     login(params, model) {
         return __awaiter(this, void 0, void 0, function* () {
             let userName = model.userName;
-            let password = model.password;
+            let passKey = model.passKey;
             let deviceId = Number.parseInt(model.deviceId);
             let platform = model.platform;
             if (!(userName && typeof userName == 'string'))
                 throw 'Invalid UserName';
-            if (!(password && typeof password == 'string'))
+            if (!(passKey && typeof passKey == 'string'))
                 throw 'Invalid Password';
             let user = yield this.userService.getByUserName(userName);
             if (!user)
                 throw 'User not found';
-            if (user.password.get() !== password)
+            let hash = crypto.createHash('sha256');
+            let currDate = new Date();
+            let passText = `:${user.password.get()}:${currDate.getDate()}:${currDate.getMonth()}:${currDate.getFullYear()}:`;
+            hash.update(passText);
+            let passHash = hash.digest('base64');
+            if (passHash !== passKey)
                 throw 'Invalid Username or Password';
             if (platform) {
                 if (!(typeof platform == 'string' && DeviceService_1.DevicePlatform[platform]))
@@ -110,30 +121,15 @@ class Auth extends es.Controller {
     }
     logout(params, model) {
         return __awaiter(this, void 0, void 0, function* () {
-            let user = yield this.userService.getByUserName(model.userName);
-            if (!user)
-                throw 'User Not Found';
-        });
-    }
-    pay(params, model) {
-        return __awaiter(this, void 0, void 0, function* () {
-            let callbackUrl = model.callbackUrl;
-            let receiverUsername = model.receiverUsername;
-            let amount = Number.parseInt(model.amount);
-            if (!(callbackUrl && typeof callbackUrl == 'string'))
-                throw 'Invalid Callback Url';
-            if (!(receiverUsername && typeof receiverUsername == 'string'))
-                throw 'Receiver Username is required';
-            if (!(amount && amount <= 0))
-                throw 'Invalid Amount';
-            let receiver = yield this.userService.getByUserName(receiverUsername);
-            if (!receiver)
-                throw 'Receiver Not Found';
-            return this.$view({
-                callbackUrl: callbackUrl,
-                receiverUsername: receiver.userName.get(),
-                amount: amount
-            });
+            let request = this.$get('request');
+            let user = request.user;
+            let device = request.device;
+            device.secret.set(random.generate());
+            device.expireAt.set(new Date().getTime());
+            yield this.deviceService.save(device);
+            return {
+                response: "success"
+            };
         });
     }
 }

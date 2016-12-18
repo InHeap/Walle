@@ -1,6 +1,7 @@
 import * as random from 'randomstring';
 import * as es from 'es-controller';
 import * as entity from "es-entity";
+import * as crypto from 'crypto';
 
 import UserService from "../Service/UserService";
 import User from '../Model/User';
@@ -28,11 +29,15 @@ export default class Auth extends es.Controller {
 		if ((<string>model.password).length > 25)
 			throw 'Password should be less then 16 characters';
 
-		if (!await this.check({ userName: model.userName }))
+		let av = await this.check({ userName: model.userName })
+		if (!av.available)
 			throw 'Duplicate User';
 
 		// TODO: Check phoneno
 		if (model.phoneNo) {
+			var str = "The best things in life are free";
+			var patt = new RegExp("e");
+			var res = patt.test(str);
 		}
 
 		let user = await this.userService.save(model);
@@ -41,31 +46,42 @@ export default class Auth extends es.Controller {
 
 	async check(params) {
 		let userName = params.userName;
+		let available = false;
 
 		if (!(userName && typeof userName == 'string'))
-			return false;
+			available = false;
 
 		let u = await this.userService.getByUserName(userName);
-		return u ? false : true;
+		available = u ? false : true;
+
+		return {
+			available: available
+		};
 	}
 
 	async login(params, model) {
 		let userName = model.userName;
-		let password = model.password;
+		let passKey = model.passKey;
 		let deviceId = Number.parseInt(model.deviceId);
 		let platform: string = model.platform;
 
 		if (!(userName && typeof userName == 'string'))
 			throw 'Invalid UserName'
 
-		if (!(password && typeof password == 'string'))
+		if (!(passKey && typeof passKey == 'string'))
 			throw 'Invalid Password';
 
 		let user = await this.userService.getByUserName(userName);
 		if (!user)
 			throw 'User not found';
 
-		if (user.password.get() !== password)
+		let hash = crypto.createHash('sha256');
+		let currDate = new Date();
+		let passText = `:${user.password.get()}:${currDate.getDate()}:${currDate.getMonth()}:${currDate.getFullYear()}:`;
+		hash.update(passText);
+		let passHash = hash.digest('base64');
+
+		if (passHash !== passKey)
 			throw 'Invalid Username or Password';
 
 		if (platform) {
@@ -120,37 +136,19 @@ export default class Auth extends es.Controller {
 	}
 
 	async logout(params, model) {
-		let user = await this.userService.getByUserName(model.userName);
-		if (!user)
-			throw 'User Not Found';
+		let request = this.$get('request');
+		let user = request.user;
+		let device = request.device;
+
+		// Reset device expire time
+		device.secret.set(random.generate());
+		device.expireAt.set(new Date().getTime());	// Device Secret valid for 1 hour
+		await this.deviceService.save(device);
 
 		// Set user token expity as now
-	}
-
-	// Web payment api page
-	async pay(params, model) {
-		let callbackUrl = model.callbackUrl;
-		let receiverUsername = model.receiverUsername;
-		let amount = Number.parseInt(model.amount);
-
-		if (!(callbackUrl && typeof callbackUrl == 'string'))
-			throw 'Invalid Callback Url';
-
-		if (!(receiverUsername && typeof receiverUsername == 'string'))
-			throw 'Receiver Username is required';
-
-		if (!(amount && amount <= 0))
-			throw 'Invalid Amount';
-
-		let receiver = await this.userService.getByUserName(receiverUsername);
-		if (!receiver)
-			throw 'Receiver Not Found';
-
-		return this.$view({
-			callbackUrl: callbackUrl,
-			receiverUsername: receiver.userName.get(),
-			amount: amount
-		});
+		return {
+			response: "success"
+		};
 	}
 
 }

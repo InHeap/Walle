@@ -1,8 +1,4 @@
-// Payment Gateway Transfer Controller for recharging users balance
-
 import * as express from 'express';
-import * as es from 'es-controller';
-import * as entity from "es-entity";
 import * as request from 'request-promise-native';
 
 import User from '../Model/User';
@@ -34,11 +30,14 @@ let deviceService: DeviceService = new DeviceService();
 let transactionService: TransactionService = new TransactionService();
 let key = 'rzp_test_BJD78hX868UODl';
 let secret = 'LvNUnyzFO9tuDqadpQrdYr2o';
-let transferUrl = 'http://localhost:3003/transfer';
+let transferUrl = 'http://localhost:3003/money/push';
 
 let router = express.Router();
 
-router.get('/', async (req, res, next) => {
+// Api to push funds
+// Payment Gateway Transfer Controller for recharging users balance
+
+router.get('/push', async (req, res, next) => {
 	try {
 		let param = req.query || req.params;
 		let userName: string = param.userName;
@@ -61,7 +60,7 @@ router.get('/', async (req, res, next) => {
 	}
 });
 
-router.post('/', async (req, res, next) => {
+router.post('/push', async (req, res, next) => {
 	let model = req.body;
 	let razorpayPaymentId = model.razorpay_payment_id;
 	let amount = Number.parseInt(model.amount);
@@ -92,6 +91,9 @@ router.post('/', async (req, res, next) => {
 		sender = await userService.get(sender.id.get());
 		receiver = await userService.get(receiver.id.get());
 
+		if (sender.balance.get() < amount)
+			throw 'Sender InSufficient Balance';
+
 		sender.balance.set(sender.balance.get() - (q.amount - q.fee));
 		receiver.balance.set(receiver.balance.get() + q.amount);
 
@@ -103,12 +105,12 @@ router.post('/', async (req, res, next) => {
 			senderId: sender.id.get(),
 			senderDeviceId: senderDevice.id.get(),
 			receiverId: receiver.id.get(),
-			receiverDeviceId: senderDevice.id.get(),
+			receiverDeviceId: null,
 			amount: amount,
 			status: "PROCESSED"
 		});
 		await trContext.commit();
-		
+
 		res.send("Success");
 	} catch (err) {
 		console.log(err);
@@ -119,4 +121,11 @@ router.post('/', async (req, res, next) => {
 	}
 });
 
-app.use('/addMoney', router);
+// Api to pull funds
+router.get('/pull', async (req, res, next) => {
+});
+
+router.post('/pull', async (req, res, next) => {
+});
+
+app.use('/money', router);

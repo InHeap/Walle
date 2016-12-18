@@ -44,12 +44,24 @@ class TransactionService {
             this.context = index_1.globalContext;
     }
     copyProperties(transaction, model) {
-        transaction.senderId.set(model.senderId);
-        transaction.senderDeviceId.set(model.senderDeviceId);
-        transaction.receiverId.set(model.receiverId);
-        transaction.receiverDeviceId.set(model.receiverDeviceId);
-        transaction.amount.set(model.amount);
-        transaction.status.set(TransactionStatus[model.status]);
+        if (model.senderId) {
+            transaction.senderId.set(model.senderId);
+        }
+        if (model.senderDeviceId) {
+            transaction.senderDeviceId.set(model.senderDeviceId);
+        }
+        if (model.receiverId) {
+            transaction.receiverId.set(model.receiverId);
+        }
+        if (model.receiverDeviceId) {
+            transaction.receiverDeviceId.set(model.receiverDeviceId);
+        }
+        if (model.amount) {
+            transaction.amount.set(model.amount);
+        }
+        if (model.status) {
+            transaction.status.set(TransactionStatus[model.status]);
+        }
         return transaction;
     }
     get(id) {

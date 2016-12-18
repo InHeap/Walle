@@ -1,5 +1,5 @@
 {
-  "name": "walle",
+  "name": "walle-api",
   "version": "1.0.0",
   "main": "index.js",
   "repository": "https://github.com/InHeap/Walle.git",
@@ -17,6 +17,7 @@
     "koa-hbs": "*",
     "morgan": "*",
     "mysql": "*",
+    "node-forge": "*",
     "nunjucks": "*",
     "randomstring": "*",
     "razorpay": "*",

@@ -18,9 +18,9 @@ let deviceService = new DeviceService_1.default();
 let transactionService = new TransactionService_1.default();
 let key = 'rzp_test_BJD78hX868UODl';
 let secret = 'LvNUnyzFO9tuDqadpQrdYr2o';
-let transferUrl = 'http://localhost:3003/transfer';
+let transferUrl = 'http://localhost:3003/money/push';
 let router = express.Router();
-router.get('/', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+router.get('/push', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     try {
         let param = req.query || req.params;
         let userName = param.userName;
@@ -40,7 +40,7 @@ router.get('/', (req, res, next) => __awaiter(this, void 0, void 0, function* ()
         next(err);
     }
 }));
-router.post('/', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+router.post('/push', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
     let model = req.body;
     let razorpayPaymentId = model.razorpay_payment_id;
     let amount = Number.parseInt(model.amount);
@@ -65,6 +65,8 @@ router.post('/', (req, res, next) => __awaiter(this, void 0, void 0, function* (
         transactionService.context = trContext;
         sender = yield userService.get(sender.id.get());
         receiver = yield userService.get(receiver.id.get());
+        if (sender.balance.get() < amount)
+            throw 'Sender InSufficient Balance';
         sender.balance.set(sender.balance.get() - (q.amount - q.fee));
         receiver.balance.set(receiver.balance.get() + q.amount);
         yield userService.save(sender);
@@ -73,7 +75,7 @@ router.post('/', (req, res, next) => __awaiter(this, void 0, void 0, function* (
             senderId: sender.id.get(),
             senderDeviceId: senderDevice.id.get(),
             receiverId: receiver.id.get(),
-            receiverDeviceId: senderDevice.id.get(),
+            receiverDeviceId: null,
             amount: amount,
             status: "PROCESSED"
         });
@@ -88,4 +90,8 @@ router.post('/', (req, res, next) => __awaiter(this, void 0, void 0, function* (
         next(err);
     }
 }));
-index_1.app.use('/addMoney', router);
+router.get('/pull', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+}));
+router.post('/pull', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+}));
+index_1.app.use('/money', router);

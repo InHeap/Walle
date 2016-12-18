@@ -1,0 +1,29 @@
+<html>
+
+<head>
+	<title>Pay Test Page</title>
+	<script type="text/javascript" src="/js/jquery.min.js"></script>
+</head>
+
+<body>
+	<script>
+		var options = {
+			"userName": "userName",
+			"amount": "20",
+		};
+
+		let url = '/transfer?userName=' + options.userName + '&amount=' + options.amount;
+		let payDialog = window.open(url, 'PayWindow');
+		
+		payDialog.addEventListener('finished', function (e) {
+			var response = e.response;
+			if (response && response.transactionId) {
+				$('body').append('Success: ' + response.transactionId);
+			} else {
+				$('body').append('Failed');
+			}
+		});
+	</script>
+</body>
+
+</html>

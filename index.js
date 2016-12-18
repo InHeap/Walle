@@ -26,6 +26,7 @@ app.use(serveStatic(__dirname + '/public', {
 app.use('/user', AuthFilter_1.default);
 app.use('/pay', AuthFilter_1.default);
 app.use('/device', AuthFilter_1.default);
+app.use('/auth/logout', AuthFilter_1.default);
 var router = new controller.Router();
 router.load(__dirname + "/routeconfig.json", __dirname);
 router.set('app', app);

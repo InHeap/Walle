@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<title>Testing</title>
+	<script type="text/javascript" src="/js/jquery.min.js"></script>
+	<script type="text/javascript" src="/js/forge.min.js"></script>
+	<script type="text/javascript" src="/js/pay.js"></script>
+</head>
+
+<body>
+	<form action="/transfer" method="POST">
+		<div>Pay to {{fullName}}</div>
+		<input id="transactionId" type="hidden" value="{{transactionId}}" />
+		<input id="userName" type="text" name="senderUserName" />
+		<input id="password" type="password" name="senderPassword" />
+		<div>Amount: {{amount}}</div>
+		<input id="pay" type="button" value="Pay" />
+	</form>
+</body>
+
+</html>
