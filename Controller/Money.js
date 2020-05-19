@@ -1,12 +1,14 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const request = require("request-promise-native");
 const UserService_1 = require("../Service/UserService");
@@ -20,7 +22,7 @@ let key = 'rzp_test_BJD78hX868UODl';
 let secret = 'LvNUnyzFO9tuDqadpQrdYr2o';
 let transferUrl = 'http://localhost:3003/money/push';
 let router = express.Router();
-router.get('/push', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+router.get('/push', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let param = req.query || req.params;
         let userName = param.userName;
@@ -40,7 +42,7 @@ router.get('/push', (req, res, next) => __awaiter(this, void 0, void 0, function
         next(err);
     }
 }));
-router.post('/push', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+router.post('/push', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     let model = req.body;
     let razorpayPaymentId = model.razorpay_payment_id;
     let amount = Number.parseInt(model.amount);
@@ -90,8 +92,8 @@ router.post('/push', (req, res, next) => __awaiter(this, void 0, void 0, functio
         next(err);
     }
 }));
-router.get('/pull', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+router.get('/pull', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
 }));
-router.post('/pull', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+router.post('/pull', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
 }));
 index_1.app.use('/money', router);

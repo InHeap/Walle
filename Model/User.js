@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const es_entity_1 = require("es-entity");
 class User {
     constructor() {
@@ -17,5 +18,4 @@ class User {
         this.uptdAt = new es_entity_1.Type.Date();
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = User;

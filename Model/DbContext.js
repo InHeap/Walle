@@ -1,4 +1,5 @@
 "use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
 const es = require("es-entity");
 const User_1 = require("./User");
 const Device_1 = require("./Device");
@@ -15,5 +16,4 @@ class DbContext extends es.Context {
         this.masters = new es.DBSet(Master_1.default);
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = DbContext;

@@ -1,12 +1,14 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 const random = require("randomstring");
 const es = require("es-controller");
 const crypto = require("crypto");
@@ -35,6 +37,9 @@ class Auth extends es.Controller {
             if (!av.available)
                 throw 'Duplicate User';
             if (model.phoneNo) {
+                var str = "The best things in life are free";
+                var patt = new RegExp("e");
+                var res = patt.test(str);
             }
             let user = yield this.userService.save(model);
             return true;
@@ -133,5 +138,4 @@ class Auth extends es.Controller {
         });
     }
 }
-Object.defineProperty(exports, "__esModule", { value: true });
 exports.default = Auth;

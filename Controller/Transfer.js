@@ -1,12 +1,14 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments)).next());
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+Object.defineProperty(exports, "__esModule", { value: true });
 const express = require("express");
 const UserService_1 = require("../Service/UserService");
 const TransactionService_1 = require("../Service/TransactionService");
@@ -14,7 +16,7 @@ const index_1 = require("../index");
 let userService = new UserService_1.default();
 let transactionService = new TransactionService_1.default();
 let router = express.Router();
-router.get('/', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+router.get('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let param = req.query || req.params;
         let userName = param.userName;
@@ -43,7 +45,7 @@ router.get('/', (req, res, next) => __awaiter(this, void 0, void 0, function* ()
         res.status(400).send(err);
     }
 }));
-router.post('/', (req, res, next) => __awaiter(this, void 0, void 0, function* () {
+router.post('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     let body = req.body;
     let transactionId = Number.parseInt(body.transactionId);
     let userName = body.userName;
