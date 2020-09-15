@@ -1,15 +1,24 @@
 {
-    "compilerOptions": {
-        "target": "es6",
-        "module": "commonjs",
-        "moduleResolution": "node",
-        "sourceMap": false,
-        "allowSyntheticDefaultImports": true,
-        "removeComments": true
-    },
-    "exclude": [
-        "typings",
-        "node_modules",
-        "bower_components"
-    ]
+	"compilerOptions": {
+		"target": "esnext",
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"sourceMap": true,
+		"allowSyntheticDefaultImports": true,
+		"noImplicitAny": false,
+		"strictNullChecks": true,
+		"removeComments": true,
+		"incremental": true,
+		"resolveJsonModule": true,
+		"outDir": "./dist",
+		"typeRoots": [
+			"node_modules/@types"
+		]
+	},
+	"include": [
+		"./src/**/*"
+	],
+	"exclude": [
+		"node_modules"
+	]
 }
